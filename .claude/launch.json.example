@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "-f", "<absoluter-pfad>/docker-compose.yml", "up", "--build"],
+      "port": 40501
+    },
+    {
+      "name": "mockup",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3000", "--directory", "<absoluter-pfad>/mockup"],
+      "port": 3000
+    }
+  ]
+}

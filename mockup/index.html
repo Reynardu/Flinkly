@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flinkly – Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 32px;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 360px;
+    height: 780px;
+    background: #f5f5f5;
+    border-radius: 40px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 0 0 2px #333;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .phone-label {
+    color: #aaa;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #f5f5f5;
+    overflow: hidden;
+  }
+
+  /* Colors */
+  :root {
+    --green: #4CAF50;
+    --green-dark: #1B5E20;
+    --green-light: #E8F5E9;
+    --green-mid: #A5D6A7;
+    --orange: #FF9800;
+    --orange-light: #FFF3E0;
+    --blue: #2196F3;
+    --red: #F44336;
+    --surface: #ffffff;
+    --on-surface: #1a1a1a;
+    --surface-variant: #E8F5E9;
+    --on-surface-variant: #4a4a4a;
+    --outline: #bdbdbd;
+  }
+
+  /* Top App Bar */
+  .top-bar {
+    background: #fff;
+    padding: 0 8px 0 16px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .top-bar h1 {
+    font-size: 20px;
+    font-weight: 600;
+    flex: 1;
+    color: var(--on-surface);
+  }
+  .top-bar .icon-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+    font-size: 20px;
+  }
+  .back-btn {
+    margin-right: 8px;
+    color: var(--on-surface-variant);
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  /* Scrollable content */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  /* Card */
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    height: 64px;
+    background: #fff;
+    display: flex;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+    font-size: 11px;
+    transition: color 0.2s;
+  }
+  .nav-item.active { color: var(--green); }
+  .nav-item .nav-icon { font-size: 22px; }
+  .nav-indicator {
+    width: 64px; height: 32px;
+    background: var(--green-light);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+
+  /* FAB */
+  .fab {
+    position: absolute;
+    bottom: 80px;
+    right: 16px;
+    width: 56px; height: 56px;
+    background: var(--green);
+    color: #fff;
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 4px 12px rgba(76,175,80,0.4);
+    cursor: pointer;
+  }
+
+  /* Typography */
+  .title-large { font-size: 20px; font-weight: 600; color: var(--on-surface); }
+  .title-medium { font-size: 16px; font-weight: 500; color: var(--on-surface); }
+  .body-large { font-size: 16px; color: var(--on-surface); }
+  .body-medium { font-size: 14px; color: var(--on-surface); }
+  .body-small { font-size: 12px; color: var(--on-surface-variant); }
+  .label { font-size: 11px; font-weight: 500; color: var(--on-surface-variant); }
+
+  /* Headline */
+  .headline { font-size: 28px; font-weight: 700; color: var(--green); }
+
+  /* Button */
+  .btn {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn-outline {
+    background: transparent;
+    color: var(--green);
+    border: 1.5px solid var(--green);
+    border-radius: 24px;
+    padding: 13px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+  }
+  .btn-danger {
+    background: var(--red);
+  }
+
+  /* Text field */
+  .field {
+    border: 1.5px solid var(--outline);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 15px;
+    width: 100%;
+    color: var(--on-surface);
+    background: #fff;
+    outline: none;
+  }
+  .field:focus { border-color: var(--green); }
+  .field-label {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Tab Row */
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid var(--outline);
+    margin-bottom: 24px;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--on-surface-variant);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  .tab.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+  }
+
+  /* Progress */
+  .progress-bar-track {
+    height: 8px;
+    background: var(--outline);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 4px;
+  }
+
+  /* Room card */
+  .room-icon {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  /* Task card */
+  .stars { color: var(--orange); font-size: 13px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    background: var(--surface-variant);
+    color: var(--on-surface-variant);
+  }
+  .chip.green { background: var(--green-light); color: var(--green-dark); }
+
+  /* Scoreboard */
+  .rank-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .rank-card.me {
+    background: var(--green-light);
+  }
+  .rank-emoji { font-size: 22px; width: 32px; text-align: center; }
+  .pts { font-size: 16px; font-weight: 700; color: var(--green); margin-left: auto; }
+
+  /* Achievement card */
+  .achiev-icon { font-size: 32px; width: 52px; text-align: center; flex-shrink: 0; }
+
+  /* Settings */
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 14px;
+  }
+  .info-label { color: var(--on-surface-variant); }
+
+  /* Setup screen center */
+  .setup-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 24px;
+    gap: 12px;
+  }
+
+  /* Filter chips */
+  .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 13px;
+    border: 1.5px solid var(--outline);
+    cursor: pointer;
+    color: var(--on-surface-variant);
+  }
+  .filter-chip.active {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green-dark);
+  }
+
+  /* Section header */
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    padding: 4px 0;
+  }
+
+  /* Status bar simulation */
+  .status-bar {
+    height: 28px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 16px;
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    flex-shrink: 0;
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--outline); margin: 8px 0; opacity: 0.5; }
+
+  /* Secret code box */
+  .secret-box {
+    background: var(--surface-variant);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 15px;
+    font-family: monospace;
+    color: var(--on-surface);
+    word-break: break-all;
+  }
+
+  /* Switch */
+  .switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+  .switch {
+    width: 40px; height: 22px;
+    background: var(--green);
+    border-radius: 11px;
+    position: relative;
+  }
+  .switch::after {
+    content: '';
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px; right: 2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .spacer { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: Server Setup -->
+<div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">9:41</div>
+      <div class="setup-center">
+        <div class="headline" style="text-align:center">Flinkly</div>
+        <div class="body-medium" style="text-align:center;color:var(--on-surface-variant)">Haushalts-App</div>
+        <div style="height:32px"></div>
+        <div class="title-medium">Server-Adresse</div>
+        <div style="height:4px"></div>
+        <div>
+          <span class="field-label">URL</span>
+          <div class="field" style="color:#666">https://flinkly.ut.reynardus.dev</div>
+        </div>
+        <button class="btn" style="margin-top:8px">Verbinden</button>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Server-Setup</div>
+</div>
+
+<!-- SCREEN 2: Login -->
+<div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">9:41</div>
+      <div class="setup-center">
+        <div style="font-size:28px;font-weight:700;color:var(--on-surface)">Willkommen</div>
+        <div style="height:16px"></div>
+        <div class="tabs">
+          <div class="tab active">Einloggen</div>
+          <div class="tab">Registrieren</div>
+        </div>
+        <div>
+          <span class="field-label">Login-Code</span>
+          <div class="field" style="color:#999;font-family:monospace;font-size:13px">••••••••••••••••••••••</div>
+        </div>
+        <button class="btn" style="margin-top:8px">Einloggen</button>
+        <div style="height:24px"></div>
+        <div class="body-small" style="text-align:center">Noch kein Konto? Wechsle zu "Registrieren"</div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Login</div>
+</div>
+
+<!-- SCREEN 3: Dashboard -->
+<div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">9:41</div>
+      <div class="top-bar">
+        <h1>Heute</h1>
+        <div class="icon-btn">↻</div>
+      </div>
+      <div class="content">
+        <!-- Greeting Card -->
+        <div class="card">
+          <div class="title-large">Hallo, Armin! 👋</div>
+          <div style="height:8px"></div>
+          <div style="display:flex;gap:16px;align-items:center">
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="font-size:16px">🔥</span>
+              <span class="body-medium">7 Tage Streak</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <span style="color:var(--green);font-size:16px">★</span>
+              <span class="body-medium">340 Punkte</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Goal Card -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="title-medium">Tagesziel</div>
+            <div class="body-medium" style="color:var(--on-surface-variant)">45 / 100 Pkt.</div>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" style="width:45%"></div>
+          </div>
+          <div class="body-small" style="margin-top:4px">Streak: 7 Tage</div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="card" style="text-align:center">
+            <div style="font-size:28px;font-weight:700;color:var(--green)">3</div>
+            <div class="body-small">Heute offen</div>
+          </div>
+          <div class="card" style="text-align:center">
+            <div style="font-size:28px;font-weight:700;color:var(--orange)">2</div>
+            <div class="body-small">Heute erledigt</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-indicator">🏠</div>
+          <span>Heute</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">🚪</div>
+          <span>Räume</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">🏆</div>
+          <span>Punkte</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">🎖</div>
+          <span>Erfolge</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">⚙️</div>
+          <span>Mehr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Dashboard</div>
+</div>
+
+<!-- SCREEN 4: Räume -->
+<div>
+  <div class="phone">
+    <div class="screen" style="position:relative">
+      <div class="status-bar">9:41</div>
+      <div class="top-bar">
+        <h1>Räume</h1>
+      </div>
+      <div class="content">
+        <!-- Room Cards -->
+        <div class="card" style="display:flex;align-items:center;gap:16px">
+          <div class="room-icon" style="background:rgba(76,175,80,0.15)">🍳</div>
+          <div style="flex:1">
+            <div class="title-medium">Küche</div>
+            <div class="body-small">2 offen · 5 gesamt</div>
+          </div>
+          <div style="color:var(--on-surface-variant);font-size:20px">›</div>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:16px">
+          <div class="room-icon" style="background:rgba(33,150,243,0.15)">🛁</div>
+          <div style="flex:1">
+            <div class="title-medium">Bad</div>
+            <div class="body-small">1 offen · 3 gesamt</div>
+          </div>
+          <div style="color:var(--on-surface-variant);font-size:20px">›</div>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:16px">
+          <div class="room-icon" style="background:rgba(255,152,0,0.15)">🏠</div>
+          <div style="flex:1">
+            <div class="title-medium">Wohnzimmer</div>
+            <div class="body-small">0 offen · 4 gesamt</div>
+          </div>
+          <div style="color:var(--on-surface-variant);font-size:20px">›</div>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:16px">
+          <div class="room-icon" style="background:rgba(156,39,176,0.15)">🌿</div>
+          <div style="flex:1">
+            <div class="title-medium">Garten</div>
+            <div class="body-small">3 offen · 6 gesamt</div>
+          </div>
+          <div style="color:var(--on-surface-variant);font-size:20px">›</div>
+        </div>
+        <div class="card" style="display:flex;align-items:center;gap:16px">
+          <div class="room-icon" style="background:rgba(244,67,54,0.15)">🛏</div>
+          <div style="flex:1">
+            <div class="title-medium">Schlafzimmer</div>
+            <div class="body-small">1 offen · 2 gesamt</div>
+          </div>
+          <div style="color:var(--on-surface-variant);font-size:20px">›</div>
+        </div>
+      </div>
+
+      <div class="fab">+</div>
+
+      <div class="bottom-nav">
+        <div class="nav-item">
+          <div class="nav-icon">🏠</div><span>Heute</span>
+        </div>
+        <div class="nav-item active">
+          <div class="nav-indicator">🚪</div><span>Räume</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">🏆</div><span>Punkte</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">🎖</div><span>Erfolge</span>
+        </div>
+        <div class="nav-item">
+          <div class="nav-icon">⚙️</div><span>Mehr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Räume</div>
+</div>
+
+<!-- SCREEN 5: Aufgaben -->
+<div>
+  <div class="phone">
+    <div class="screen" style="position:relative">
+      <div class="status-bar">9:41</div>
+      <div class="top-bar">
+        <div class="back-btn">←</div>
+        <h1>Küche</h1>
+      </div>
+      <div class="content">
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div class="title-medium">Geschirr spülen</div>
+              <div class="body-small" style="margin-top:2px">Abwasch und Spülmaschine ausräumen</div>
+            </div>
+            <div style="font-size:18px;color:var(--on-surface-variant);cursor:pointer">🗑</div>
+          </div>
+          <div style="height:10px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="stars">★★☆</span>
+              <span style="font-size:13px;font-weight:600;color:var(--green)">15 Pkt.</span>
+              <span class="chip">täglich</span>
+            </div>
+            <div style="font-size:24px;color:var(--green);cursor:pointer">✓</div>
+          </div>
+          <div class="body-small" style="margin-top:4px">Fällig: 2026-04-18</div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div class="title-medium">Kühlschrank reinigen</div>
+            </div>
+            <div style="font-size:18px;color:var(--on-surface-variant);cursor:pointer">🗑</div>
+          </div>
+          <div style="height:10px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="stars">★★★</span>
+              <span style="font-size:13px;font-weight:600;color:var(--green)">30 Pkt.</span>
+              <span class="chip">monatlich</span>
+            </div>
+            <div style="font-size:24px;color:var(--green);cursor:pointer">✓</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div class="title-medium">Herd abwischen</div>
+            </div>
+            <div style="font-size:18px;color:var(--on-surface-variant);cursor:pointer">🗑</div>
+          </div>
+          <div style="height:10px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="stars">★☆☆</span>
+              <span style="font-size:13px;font-weight:600;color:var(--green)">8 Pkt.</span>
+              <span class="chip">wöchentlich</span>
+            </div>
+            <div style="font-size:24px;color:var(--green);cursor:pointer">✓</div>
+          </div>
+          <div class="body-small" style="margin-top:4px">Fällig: 2026-04-20</div>
+        </div>
+
+      </div>
+      <div class="fab">+</div>
+    </div>
+  </div>
+  <div class="phone-label">Aufgaben</div>
+</div>
+
+<!-- SCREEN 6: Scoreboard -->
+<div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">9:41</div>
+      <div class="top-bar">
+        <h1>Punkte</h1>
+        <div class="icon-btn">↻</div>
+      </div>
+      <div class="content">
+        <div class="filter-chips">
+          <div class="filter-chip active">Woche</div>
+          <div class="filter-chip">Monat</div>
+          <div class="filter-chip">Gesamt</div>
+        </div>
+
+        <div class="rank-card me">
+          <div class="rank-emoji">🥇</div>
+          <div style="flex:1">
+            <div class="title-medium">Armin (du)</div>
+            <div style="display:flex;gap:8px;margin-top:2px">
+              <span class="body-small">5 Aufgaben</span>
+              <span class="body-small">🔥 7</span>
+            </div>
+          </div>
+          <div class="pts">120 Pkt.</div>
+        </div>
+
+        <div class="rank-card">
+          <div class="rank-emoji">🥈</div>
+          <div style="flex:1">
+            <div class="title-medium">Lisa</div>
+            <div style="display:flex;gap:8px;margin-top:2px">
+              <span class="body-small">4 Aufgaben</span>
+              <span class="body-small">🔥 5</span>
+            </div>
+          </div>
+          <div class="pts">95 Pkt.</div>
+        </div>
+
+        <div class="rank-card">
+          <div class="rank-emoji">🥉</div>
+          <div style="flex:1">
+            <div class="title-medium">Tom</div>
+            <div style="display:flex;gap:8px;margin-top:2px">
+              <span class="body-small">3 Aufgaben</span>
+              <span class="body-small">🔥 2</span>
+            </div>
+          </div>
+          <div class="pts">60 Pkt.</div>
+        </div>
+
+        <div class="rank-card">
+          <div class="rank-emoji" style="font-size:15px;color:var(--on-surface-variant)">4.</div>
+          <div style="flex:1">
+            <div class="title-medium">Sarah</div>
+            <div style="display:flex;gap:8px;margin-top:2px">
+              <span class="body-small">2 Aufgaben</span>
+            </div>
+          </div>
+          <div class="pts">40 Pkt.</div>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div><span>Heute</span></div>
+        <div class="nav-item"><div class="nav-icon">🚪</div><span>Räume</span></div>
+        <div class="nav-item active"><div class="nav-indicator">🏆</div><span>Punkte</span></div>
+        <div class="nav-item"><div class="nav-icon">🎖</div><span>Erfolge</span></div>
+        <div class="nav-item"><div class="nav-icon">⚙️</div><span>Mehr</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Scoreboard</div>
+</div>
+
+<!-- SCREEN 7: Achievements -->
+<div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">9:41</div>
+      <div class="top-bar">
+        <h1>Erfolge</h1>
+        <div class="icon-btn">↻</div>
+      </div>
+      <div class="content">
+        <div class="body-small">4 Erfolge freigeschaltet</div>
+
+        <div class="card" style="display:flex;align-items:center;gap:16px;background:var(--surface-variant)">
+          <div class="achiev-icon">🔥</div>
+          <div style="flex:1">
+            <div class="title-medium">Streak-Starter</div>
+            <div class="body-small" style="margin-top:2px">7 Tage in Folge Punkte gesammelt</div>
+            <div class="label" style="margin-top:4px">Am 2026-04-11</div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;align-items:center;gap:16px;background:var(--surface-variant)">
+          <div class="achiev-icon">⭐</div>
+          <div style="flex:1">
+            <div class="title-medium">Erster Schritt</div>
+            <div class="body-small" style="margin-top:2px">Erste Aufgabe erfolgreich erledigt</div>
+            <div class="label" style="margin-top:4px">Am 2026-04-12</div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;align-items:center;gap:16px;background:var(--surface-variant)">
+          <div class="achiev-icon">🏠</div>
+          <div style="flex:1">
+            <div class="title-medium">Haushaltsheld</div>
+            <div class="body-small" style="margin-top:2px">10 Aufgaben in einer Woche erledigt</div>
+            <div class="label" style="margin-top:4px">Am 2026-04-15</div>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;align-items:center;gap:16px;background:var(--surface-variant)">
+          <div class="achiev-icon">🏆</div>
+          <div style="flex:1">
+            <div class="title-medium">Wochensieger</div>
+            <div class="body-small" style="margin-top:2px">Platz 1 im Wochen-Scoreboard</div>
+            <div class="label" style="margin-top:4px">Am 2026-04-17</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div><span>Heute</span></div>
+        <div class="nav-item"><div class="nav-icon">🚪</div><span>Räume</span></div>
+        <div class="nav-item"><div class="nav-icon">🏆</div><span>Punkte</span></div>
+        <div class="nav-item active"><div class="nav-indicator">🎖</div><span>Erfolge</span></div>
+        <div class="nav-item"><div class="nav-icon">⚙️</div><span>Mehr</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Erfolge</div>
+</div>
+
+<!-- SCREEN 8: Settings -->
+<div>
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">9:41</div>
+      <div class="top-bar">
+        <h1>Einstellungen</h1>
+      </div>
+      <div class="content">
+
+        <div class="card">
+          <div class="title-medium" style="margin-bottom:10px">Profil</div>
+          <div class="info-row"><span class="info-label">Name</span><span>Armin</span></div>
+          <div class="info-row"><span class="info-label">Punkte gesamt</span><span>340</span></div>
+          <div class="info-row"><span class="info-label">Längster Streak</span><span>7 Tage</span></div>
+        </div>
+
+        <div class="card">
+          <div class="title-medium" style="margin-bottom:6px">Login-Code</div>
+          <div class="body-small" style="margin-bottom:10px">Bewahre deinen Code sicher auf – du brauchst ihn für neue Geräte.</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="secret-box" style="flex:1">••••••••••••••••••••••</div>
+            <div style="font-size:20px;cursor:pointer">👁</div>
+            <div style="font-size:18px;cursor:pointer">📋</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="title-medium" style="margin-bottom:10px">Haushalt</div>
+          <div class="info-row"><span class="info-label">Name</span><span>WG Musterstraße</span></div>
+          <div class="info-row"><span class="info-label">Mitglieder</span><span>4</span></div>
+          <div style="height:10px"></div>
+          <button class="btn-outline">Einladungslink erstellen</button>
+        </div>
+
+        <button class="btn btn-danger">Abmelden</button>
+
+      </div>
+
+      <div class="bottom-nav">
+        <div class="nav-item"><div class="nav-icon">🏠</div><span>Heute</span></div>
+        <div class="nav-item"><div class="nav-icon">🚪</div><span>Räume</span></div>
+        <div class="nav-item"><div class="nav-icon">🏆</div><span>Punkte</span></div>
+        <div class="nav-item"><div class="nav-icon">🎖</div><span>Erfolge</span></div>
+        <div class="nav-item active"><div class="nav-indicator">⚙️</div><span>Mehr</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="phone-label">Einstellungen</div>
+</div>
+
+</body>
+</html>
