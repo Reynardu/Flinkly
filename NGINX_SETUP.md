@@ -1,6 +1,6 @@
 # Nginx Setup für Flinkly
 
-Der Backend-Container läuft auf Port `8000`. Nginx leitet Anfragen an ihn weiter.
+Der Backend-Container läuft auf Port `40501`. Nginx leitet Anfragen an ihn weiter.
 
 ---
 
@@ -26,7 +26,7 @@ server {
 
     # REST API
     location /api/ {
-        proxy_pass         http://localhost:8000/;
+        proxy_pass         http://localhost:40501/;
         proxy_set_header   Host $host;
         proxy_set_header   X-Real-IP $remote_addr;
         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -35,7 +35,7 @@ server {
 
     # WebSocket (wichtig: upgrade headers!)
     location /ws/ {
-        proxy_pass         http://localhost:8000/ws/;
+        proxy_pass         http://localhost:40501/ws/;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade $http_upgrade;
         proxy_set_header   Connection "upgrade";
@@ -87,7 +87,7 @@ In den App-Einstellungen unter **Server-URL** eintragen:
 | Situation | URL |
 |---|---|
 | Von außen (empfohlen) | `https://flinkly.ut.reynardus.dev` |
-| Nur Heimnetz | `http://192.168.x.x:8000` |
+| Nur Heimnetz | `http://192.168.x.x:40501` |
 
 ---
 
