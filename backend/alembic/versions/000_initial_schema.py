@@ -12,12 +12,13 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-member_role = sa.Enum("OWNER", "MEMBER", name="memberrole")
-frequency_type = sa.Enum("DAILY", "WEEKLY", "MONTHLY", "CUSTOM", "ONCE", name="frequencytype")
+member_role = sa.Enum("OWNER", "MEMBER", name="memberrole", create_type=False)
+frequency_type = sa.Enum("DAILY", "WEEKLY", "MONTHLY", "CUSTOM", "ONCE", name="frequencytype", create_type=False)
 achievement_type = sa.Enum(
     "FIRST_TASK", "STREAK_7", "STREAK_30", "SCORE_100", "SCORE_1000",
     "FIVE_IN_ONE_DAY", "MONTHLY_WINNER", "TEAMPLAYER", "LEVEL_UP",
     name="achievementtype",
+    create_type=False,
 )
 
 
@@ -42,7 +43,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 
-    member_role.create(op.get_bind(), checkfirst=True)
+    op.execute("CREATE TYPE memberrole AS ENUM ('OWNER', 'MEMBER')")
     op.create_table(
         "household_members",
         sa.Column("id", sa.Integer(), primary_key=True),
@@ -63,7 +64,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
 
-    frequency_type.create(op.get_bind(), checkfirst=True)
+    op.execute("CREATE TYPE frequencytype AS ENUM ('DAILY', 'WEEKLY', 'MONTHLY', 'CUSTOM', 'ONCE')")
     op.create_table(
         "tasks",
         sa.Column("id", sa.Integer(), primary_key=True),
@@ -96,7 +97,11 @@ def upgrade() -> None:
         sa.Column("note", sa.String(500), nullable=True),
     )
 
-    achievement_type.create(op.get_bind(), checkfirst=True)
+    op.execute(
+        "CREATE TYPE achievementtype AS ENUM ("
+        "'FIRST_TASK', 'STREAK_7', 'STREAK_30', 'SCORE_100', 'SCORE_1000',"
+        "'FIVE_IN_ONE_DAY', 'MONTHLY_WINNER', 'TEAMPLAYER', 'LEVEL_UP')"
+    )
     op.create_table(
         "achievements",
         sa.Column("id", sa.Integer(), primary_key=True),
@@ -111,12 +116,12 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("achievements")
-    achievement_type.drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS achievementtype")
     op.drop_table("task_completions")
     op.drop_table("tasks")
-    frequency_type.drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS frequencytype")
     op.drop_table("rooms")
     op.drop_table("household_members")
-    member_role.drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS memberrole")
     op.drop_table("households")
     op.drop_table("users")
