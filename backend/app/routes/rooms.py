@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -34,11 +35,16 @@ def list_rooms(
 ):
     _require_member(db, household_id, current_user.id)
     rooms = db.query(Room).filter(Room.household_id == household_id).all()
+    now = datetime.now(timezone.utc)
     result = []
     for room in rooms:
         r = RoomResponse.model_validate(room)
-        r.task_count = len(room.tasks)
-        r.open_task_count = sum(1 for t in room.tasks if not t.is_suggestion)
+        non_suggestions = [t for t in room.tasks if not t.is_suggestion]
+        r.task_count = len(non_suggestions)
+        r.open_task_count = sum(
+            1 for t in non_suggestions
+            if t.next_due_at is None or t.next_due_at <= now
+        )
         result.append(r)
     return result
 

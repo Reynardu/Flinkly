@@ -37,6 +37,8 @@ class RoomsViewModel @Inject constructor(
         private set
     var error by mutableStateOf<String?>(null)
         private set
+    var isRefreshing by mutableStateOf(false)
+        private set
 
     private var householdId: Int? = null
 
@@ -54,6 +56,15 @@ class RoomsViewModel @Inject constructor(
             val id = prefs.householdId.first() ?: return@launch
             householdId = id
             roomRepository.syncRooms(id)
+        }
+    }
+
+    fun refresh() {
+        val id = householdId ?: return
+        viewModelScope.launch {
+            isRefreshing = true
+            roomRepository.syncRooms(id)
+            isRefreshing = false
         }
     }
 
