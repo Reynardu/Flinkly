@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BeachAccess
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -22,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -34,14 +36,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.reynardus.flinkly.data.remote.dto.RecentCompletionDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
     val progress by vm.progress.collectAsState()
     val user by vm.user.collectAsState()
+    val recentCompletions by vm.recentCompletions.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
 
     Scaffold(
@@ -121,6 +127,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
                     }
                 }
 
+                // Begrüßungs-Karte
                 user?.let { u ->
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
@@ -160,6 +167,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
                     }
                 }
 
+                // Tagesziel
                 progress?.let { p ->
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
@@ -184,7 +192,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
                                 if (p.goalReached) {
                                     Spacer(Modifier.height(8.dp))
                                     Text(
-                                        text = "Tagesziel erreicht!",
+                                        text = "Tagesziel erreicht! 🎉",
                                         color = MaterialTheme.colorScheme.primary,
                                         style = MaterialTheme.typography.bodyMedium,
                                     )
@@ -199,7 +207,76 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
                         }
                     }
                 }
+
+                // Aktivitäts-Ticker
+                if (recentCompletions.isNotEmpty()) {
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "Zuletzt erledigt",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                recentCompletions.forEachIndexed { index, completion ->
+                                    TickerItem(completion = completion)
+                                    if (index < recentCompletions.lastIndex) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(vertical = 8.dp),
+                                            thickness = 0.5.dp,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+@Composable
+private fun TickerItem(completion: RecentCompletionDto) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = completion.taskTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "${completion.userName} · ${relativeTime(completion.completedAt)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "+${completion.pointsEarned} Pkt.",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+
+private fun relativeTime(isoDate: String): String = try {
+    val instant = java.time.OffsetDateTime.parse(isoDate).toInstant()
+    val diffMs = java.time.Instant.now().toEpochMilli() - instant.toEpochMilli()
+    val minutes = diffMs / 60_000
+    when {
+        minutes < 1 -> "gerade eben"
+        minutes < 60 -> "vor ${minutes} Min."
+        minutes < 1440 -> "vor ${minutes / 60} Std."
+        else -> "vor ${minutes / 1440} Tag(en)"
+    }
+} catch (_: Exception) {
+    isoDate.take(10)
 }

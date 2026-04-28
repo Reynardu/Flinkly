@@ -86,6 +86,18 @@ interface ApiService {
     @GET("scores/{householdId}/daily-progress")
     suspend fun getDailyProgress(@Path("householdId") householdId: Int): Response<DailyProgressDto>
 
+    @GET("scores/{householdId}/recent")
+    suspend fun getRecentCompletions(
+        @Path("householdId") householdId: Int,
+        @Query("limit") limit: Int = 10,
+    ): Response<List<RecentCompletionDto>>
+
+    @GET("scores/{householdId}/user/{userId}/completions")
+    suspend fun getUserCompletions(
+        @Path("householdId") householdId: Int,
+        @Path("userId") userId: Int,
+    ): Response<List<UserCompletionDto>>
+
     @GET("scores/{householdId}/level/{userId}")
     suspend fun getUserLevel(@Path("householdId") householdId: Int, @Path("userId") userId: Int): Response<UserLevelDto>
 

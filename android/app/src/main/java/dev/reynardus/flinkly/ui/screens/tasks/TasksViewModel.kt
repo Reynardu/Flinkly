@@ -50,7 +50,6 @@ class TasksViewModel @Inject constructor(
     var error by mutableStateOf<String?>(null)
         private set
 
-    // Warnung wenn Aufgabe bereits erledigt wurde und nextDueAt in der Zukunft liegt
     var pendingEarlyCompleteTaskId by mutableStateOf<Int?>(null)
         private set
     var pendingEarlyCompleteDueDate by mutableStateOf<String?>(null)
@@ -59,7 +58,6 @@ class TasksViewModel @Inject constructor(
     var isRefreshing by mutableStateOf(false)
         private set
 
-    // Erledigungs-Historie (in-memory, aus letztem Sync)
     private val _completions = MutableStateFlow<Map<Int, List<CompletionDto>>>(emptyMap())
     val completions: StateFlow<Map<Int, List<CompletionDto>>> = _completions.asStateFlow()
 
@@ -70,23 +68,29 @@ class TasksViewModel @Inject constructor(
 
     fun init(roomId: Int) {
         roomIdFlow.value = roomId
-        viewModelScope.launch { syncData(roomId) }
+        viewModelScope.launch { syncTasks(roomId) }
     }
 
     fun refresh() {
         val roomId = roomIdFlow.value.takeIf { it != 0 } ?: return
         viewModelScope.launch {
             isRefreshing = true
-            syncData(roomId)
+            syncTasks(roomId)
             isRefreshing = false
         }
     }
 
-    private suspend fun syncData(roomId: Int) {
+    // Nur Tasks laden – kein syncRooms hier, da deleteByHousehold Tasks via CASCADE löscht
+    private suspend fun syncTasks(roomId: Int) {
         taskRepository.syncTasks(roomId).onSuccess { dtos ->
             _completions.value = dtos.associate { it.id to it.completions }
         }
+    }
+
+    // Nach Mutationen: Rooms neu laden (cascade löscht Tasks), dann Tasks wiederherstellen
+    private suspend fun syncAfterMutation(roomId: Int) {
         prefs.householdId.first()?.let { roomRepository.syncRooms(it) }
+        syncTasks(roomId)
     }
 
     fun openCreateDialog() {
@@ -122,7 +126,7 @@ class TasksViewModel @Inject constructor(
             )
                 .onSuccess {
                     showCreateDialog = false
-                    syncData(roomId)
+                    syncAfterMutation(roomId)
                 }
                 .onFailure { error = it.message }
             isCreating = false
@@ -155,14 +159,14 @@ class TasksViewModel @Inject constructor(
     private fun doCompleteTask(taskId: Int) {
         viewModelScope.launch {
             taskRepository.completeTask(taskId)
-            syncData(roomIdFlow.value)
+            syncAfterMutation(roomIdFlow.value)
         }
     }
 
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
             taskRepository.deleteTask(taskId)
-            syncData(roomIdFlow.value)
+            syncAfterMutation(roomIdFlow.value)
         }
     }
 
