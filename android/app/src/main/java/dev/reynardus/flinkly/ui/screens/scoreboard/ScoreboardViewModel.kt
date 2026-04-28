@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.reynardus.flinkly.data.remote.ApiService
 import dev.reynardus.flinkly.data.remote.dto.ScoreboardDto
+import dev.reynardus.flinkly.data.remote.dto.UserCompletionDto
 import dev.reynardus.flinkly.data.store.PreferencesStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +34,14 @@ class ScoreboardViewModel @Inject constructor(
     private val _currentUserId = MutableStateFlow<Int?>(null)
     val currentUserId: StateFlow<Int?> = _currentUserId
 
+    // User-Detail-Dialog
+    var selectedUserName by mutableStateOf<String?>(null)
+        private set
+    private val _selectedUserCompletions = MutableStateFlow<List<UserCompletionDto>>(emptyList())
+    val selectedUserCompletions: StateFlow<List<UserCompletionDto>> = _selectedUserCompletions
+    var isLoadingUserDetail by mutableStateOf(false)
+        private set
+
     init { load() }
 
     fun selectPeriod(period: String) {
@@ -42,6 +51,23 @@ class ScoreboardViewModel @Inject constructor(
     }
 
     fun refresh() = load()
+
+    fun openUserDetail(userId: Int, userName: String) {
+        selectedUserName = userName
+        _selectedUserCompletions.value = emptyList()
+        viewModelScope.launch {
+            isLoadingUserDetail = true
+            val householdId = prefs.householdId.first() ?: return@launch
+            runCatching { api.getUserCompletions(householdId, userId).body() }.getOrNull()
+                ?.let { _selectedUserCompletions.value = it }
+            isLoadingUserDetail = false
+        }
+    }
+
+    fun closeUserDetail() {
+        selectedUserName = null
+        _selectedUserCompletions.value = emptyList()
+    }
 
     private fun load() {
         viewModelScope.launch {

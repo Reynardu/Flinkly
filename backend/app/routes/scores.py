@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models.household import HouseholdMember, HouseholdPause
-from app.models.task import TaskCompletion
+from app.models.room import Room
+from app.models.task import Task, TaskCompletion
 from app.models.user import User
 from app.schemas.achievement import ScoreboardResponse, ScoreEntry, UserScoreSummary
 from app.services.points_service import get_user_level
@@ -79,8 +80,10 @@ def get_scoreboard(
             since = since.replace(hour=0, minute=0, second=0, microsecond=0)
         case "monthly":
             since = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        case "all_time":
+            since = datetime(2000, 1, 1, tzinfo=timezone.utc)
         case _:
-            raise HTTPException(status_code=400, detail="period muss daily, weekly oder monthly sein")
+            raise HTTPException(status_code=400, detail="period muss daily, weekly, monthly oder all_time sein")
 
     members = db.query(HouseholdMember).filter(HouseholdMember.household_id == household_id).all()
 
@@ -118,6 +121,68 @@ def get_scoreboard(
         fairness[user.id] = round((points / total_points_all * 100) if total_points_all > 0 else 0, 1)
 
     return ScoreboardResponse(period=period, entries=entries, fairness_percent=fairness)
+
+
+@router.get("/{household_id}/recent")
+def get_recent_completions(
+    household_id: int,
+    limit: int = 10,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_member(db, household_id, current_user.id)
+    completions = (
+        db.query(TaskCompletion)
+        .join(Task, TaskCompletion.task_id == Task.id)
+        .join(Room, Task.room_id == Room.id)
+        .filter(Room.household_id == household_id)
+        .order_by(TaskCompletion.completed_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return [
+        {
+            "id": c.id,
+            "task_title": c.task.title,
+            "user_name": c.user.display_name,
+            "user_id": c.user_id,
+            "completed_at": c.completed_at.isoformat(),
+            "points_earned": c.points_earned,
+        }
+        for c in completions
+    ]
+
+
+@router.get("/{household_id}/user/{user_id}/completions")
+def get_user_completions(
+    household_id: int,
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_member(db, household_id, current_user.id)
+    completions = (
+        db.query(TaskCompletion)
+        .join(Task, TaskCompletion.task_id == Task.id)
+        .join(Room, Task.room_id == Room.id)
+        .filter(
+            Room.household_id == household_id,
+            TaskCompletion.user_id == user_id,
+        )
+        .order_by(TaskCompletion.completed_at.desc())
+        .limit(50)
+        .all()
+    )
+    return [
+        {
+            "id": c.id,
+            "task_id": c.task_id,
+            "task_title": c.task.title,
+            "completed_at": c.completed_at.isoformat(),
+            "points_earned": c.points_earned,
+        }
+        for c in completions
+    ]
 
 
 def _require_member(db: Session, household_id: int, user_id: int):

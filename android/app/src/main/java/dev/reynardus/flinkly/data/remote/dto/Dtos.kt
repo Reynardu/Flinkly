@@ -170,6 +170,23 @@ data class HouseholdPauseDto(
     @SerializedName("created_at") val createdAt: String,
 )
 
+data class RecentCompletionDto(
+    val id: Int,
+    @SerializedName("task_title") val taskTitle: String,
+    @SerializedName("user_name") val userName: String,
+    @SerializedName("user_id") val userId: Int,
+    @SerializedName("completed_at") val completedAt: String,
+    @SerializedName("points_earned") val pointsEarned: Int,
+)
+
+data class UserCompletionDto(
+    val id: Int,
+    @SerializedName("task_id") val taskId: Int,
+    @SerializedName("task_title") val taskTitle: String,
+    @SerializedName("completed_at") val completedAt: String,
+    @SerializedName("points_earned") val pointsEarned: Int,
+)
+
 data class DailyProgressDto(
     @SerializedName("today_points") val todayPoints: Int,
     @SerializedName("daily_goal") val dailyGoal: Int,
