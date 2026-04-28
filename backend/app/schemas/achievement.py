@@ -24,7 +24,7 @@ class ScoreEntry(BaseModel):
 class UserScoreSummary(BaseModel):
     id: int
     display_name: str
-    avatar_url: str | None
+    avatar_url: str | None = None
     current_streak: int
 
     model_config = {"from_attributes": True}

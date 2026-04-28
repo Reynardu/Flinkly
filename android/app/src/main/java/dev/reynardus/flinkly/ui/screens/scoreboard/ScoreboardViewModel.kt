@@ -21,7 +21,7 @@ class ScoreboardViewModel @Inject constructor(
     private val prefs: PreferencesStore,
 ) : ViewModel() {
 
-    var selectedPeriod by mutableStateOf("week")
+    var selectedPeriod by mutableStateOf("weekly")
         private set
 
     private val _scoreboard = MutableStateFlow<ScoreboardDto?>(null)

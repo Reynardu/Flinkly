@@ -56,7 +56,7 @@ private val frequencyOptions = listOf(
     "DAILY" to "Täglich",
     "WEEKLY" to "Wöchentlich",
     "MONTHLY" to "Monatlich",
-    "ONE_TIME" to "Einmalig",
+    "ONCE" to "Einmalig",
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
