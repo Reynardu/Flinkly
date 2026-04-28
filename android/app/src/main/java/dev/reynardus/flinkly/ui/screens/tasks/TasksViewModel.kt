@@ -8,12 +8,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.reynardus.flinkly.data.local.entities.TaskEntity
+import dev.reynardus.flinkly.data.remote.dto.CompletionDto
 import dev.reynardus.flinkly.data.remote.dto.TaskCreate
+import dev.reynardus.flinkly.data.repository.RoomRepository
 import dev.reynardus.flinkly.data.repository.TaskRepository
+import dev.reynardus.flinkly.data.store.PreferencesStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -22,6 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
+    private val roomRepository: RoomRepository,
+    private val prefs: PreferencesStore,
 ) : ViewModel() {
 
     private val roomIdFlow = MutableStateFlow(0)
@@ -43,17 +50,43 @@ class TasksViewModel @Inject constructor(
     var error by mutableStateOf<String?>(null)
         private set
 
+    // Warnung wenn Aufgabe bereits erledigt wurde und nextDueAt in der Zukunft liegt
+    var pendingEarlyCompleteTaskId by mutableStateOf<Int?>(null)
+        private set
+    var pendingEarlyCompleteDueDate by mutableStateOf<String?>(null)
+        private set
+
+    var isRefreshing by mutableStateOf(false)
+        private set
+
+    // Erledigungs-Historie (in-memory, aus letztem Sync)
+    private val _completions = MutableStateFlow<Map<Int, List<CompletionDto>>>(emptyMap())
+    val completions: StateFlow<Map<Int, List<CompletionDto>>> = _completions.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val tasks: StateFlow<List<TaskEntity>> = roomIdFlow
         .flatMapLatest { id -> taskRepository.getTasks(id) }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun init(roomId: Int) {
-        if (roomIdFlow.value == roomId) return
         roomIdFlow.value = roomId
+        viewModelScope.launch { syncData(roomId) }
+    }
+
+    fun refresh() {
+        val roomId = roomIdFlow.value.takeIf { it != 0 } ?: return
         viewModelScope.launch {
-            taskRepository.syncTasks(roomId)
+            isRefreshing = true
+            syncData(roomId)
+            isRefreshing = false
         }
+    }
+
+    private suspend fun syncData(roomId: Int) {
+        taskRepository.syncTasks(roomId).onSuccess { dtos ->
+            _completions.value = dtos.associate { it.id to it.completions }
+        }
+        prefs.householdId.first()?.let { roomRepository.syncRooms(it) }
     }
 
     fun openCreateDialog() {
@@ -87,22 +120,55 @@ class TasksViewModel @Inject constructor(
                     autoRepeat = newAutoRepeat,
                 )
             )
-                .onSuccess { showCreateDialog = false }
+                .onSuccess {
+                    showCreateDialog = false
+                    syncData(roomId)
+                }
                 .onFailure { error = it.message }
             isCreating = false
         }
     }
 
     fun completeTask(taskId: Int) {
+        val task = tasks.value.find { it.id == taskId } ?: return
+        val nextDueAt = task.nextDueAt
+        if (nextDueAt != null && isInFuture(nextDueAt)) {
+            pendingEarlyCompleteTaskId = taskId
+            pendingEarlyCompleteDueDate = nextDueAt.take(10)
+            return
+        }
+        doCompleteTask(taskId)
+    }
+
+    fun confirmEarlyCompletion() {
+        val taskId = pendingEarlyCompleteTaskId ?: return
+        pendingEarlyCompleteTaskId = null
+        pendingEarlyCompleteDueDate = null
+        doCompleteTask(taskId)
+    }
+
+    fun dismissEarlyCompletion() {
+        pendingEarlyCompleteTaskId = null
+        pendingEarlyCompleteDueDate = null
+    }
+
+    private fun doCompleteTask(taskId: Int) {
         viewModelScope.launch {
             taskRepository.completeTask(taskId)
-            taskRepository.syncTasks(roomIdFlow.value)
+            syncData(roomIdFlow.value)
         }
     }
 
     fun deleteTask(taskId: Int) {
         viewModelScope.launch {
             taskRepository.deleteTask(taskId)
+            syncData(roomIdFlow.value)
         }
+    }
+
+    private fun isInFuture(isoDate: String): Boolean = try {
+        java.time.OffsetDateTime.parse(isoDate).toInstant().isAfter(java.time.Instant.now())
+    } catch (_: Exception) {
+        false
     }
 }
