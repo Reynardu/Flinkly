@@ -24,6 +24,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-haushalt}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-haushalt}
+      HOUSEHOLD_PASSWORD: ${HOUSEHOLD_PASSWORD}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
       FCM_SERVER_KEY: ${FCM_SERVER_KEY}
       SECRET_KEY: ${SECRET_KEY}
