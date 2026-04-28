@@ -6,20 +6,12 @@ Create Date: 2026-04-18
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import ENUM as PgEnum
 
 revision = "000"
 down_revision = None
 branch_labels = None
 depends_on = None
-
-member_role = sa.Enum("OWNER", "MEMBER", name="memberrole", create_type=False)
-frequency_type = sa.Enum("DAILY", "WEEKLY", "MONTHLY", "CUSTOM", "ONCE", name="frequencytype", create_type=False)
-achievement_type = sa.Enum(
-    "FIRST_TASK", "STREAK_7", "STREAK_30", "SCORE_100", "SCORE_1000",
-    "FIVE_IN_ONE_DAY", "MONTHLY_WINNER", "TEAMPLAYER", "LEVEL_UP",
-    name="achievementtype",
-    create_type=False,
-)
 
 
 def upgrade() -> None:
@@ -28,10 +20,10 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("user_secret", sa.String(64), unique=True, nullable=False, index=True),
         sa.Column("display_name", sa.String(100), nullable=False),
-        sa.Column("daily_point_goal", sa.Integer(), default=50),
-        sa.Column("total_points", sa.Integer(), default=0),
-        sa.Column("current_streak", sa.Integer(), default=0),
-        sa.Column("longest_streak", sa.Integer(), default=0),
+        sa.Column("daily_point_goal", sa.Integer(), server_default="50"),
+        sa.Column("total_points", sa.Integer(), server_default="0"),
+        sa.Column("current_streak", sa.Integer(), server_default="0"),
+        sa.Column("longest_streak", sa.Integer(), server_default="0"),
         sa.Column("last_active_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
@@ -49,7 +41,7 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("household_id", sa.Integer(), sa.ForeignKey("households.id", ondelete="CASCADE"), nullable=False),
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("role", member_role, nullable=False, server_default="MEMBER"),
+        sa.Column("role", PgEnum("OWNER", "MEMBER", name="memberrole", create_type=False), nullable=False, server_default="MEMBER"),
         sa.Column("invite_token", sa.String(64), unique=True, index=True, nullable=True),
         sa.Column("joined_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
@@ -72,7 +64,7 @@ def upgrade() -> None:
         sa.Column("title", sa.String(200), nullable=False),
         sa.Column("description", sa.String(1000), nullable=True),
         sa.Column("difficulty", sa.Integer(), server_default="2"),
-        sa.Column("frequency_type", frequency_type, server_default="WEEKLY"),
+        sa.Column("frequency_type", PgEnum("DAILY", "WEEKLY", "MONTHLY", "CUSTOM", "ONCE", name="frequencytype", create_type=False), server_default="WEEKLY"),
         sa.Column("frequency_value", sa.String(100), nullable=True),
         sa.Column("due_date", sa.DateTime(timezone=True), nullable=True),
         sa.Column("auto_repeat", sa.Boolean(), server_default="true"),
@@ -106,7 +98,11 @@ def upgrade() -> None:
         "achievements",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("type", achievement_type, nullable=False),
+        sa.Column("type", PgEnum(
+            "FIRST_TASK", "STREAK_7", "STREAK_30", "SCORE_100", "SCORE_1000",
+            "FIVE_IN_ONE_DAY", "MONTHLY_WINNER", "TEAMPLAYER", "LEVEL_UP",
+            name="achievementtype", create_type=False,
+        ), nullable=False),
         sa.Column("title", sa.String(100), nullable=False),
         sa.Column("description", sa.String(300), nullable=False),
         sa.Column("icon", sa.String(10), nullable=False),
