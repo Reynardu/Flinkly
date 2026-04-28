@@ -1,7 +1,6 @@
 package dev.reynardus.flinkly.data.repository
 
 import dev.reynardus.flinkly.data.remote.ApiClient
-import dev.reynardus.flinkly.data.remote.ApiService
 import dev.reynardus.flinkly.data.remote.dto.LoginRequest
 import dev.reynardus.flinkly.data.remote.dto.RegisterRequest
 import dev.reynardus.flinkly.data.store.PreferencesStore
@@ -11,7 +10,6 @@ import javax.inject.Singleton
 
 @Singleton
 class AuthRepository @Inject constructor(
-    private val api: ApiService,
     private val apiClient: ApiClient,
     private val prefs: PreferencesStore,
 ) {
@@ -23,7 +21,7 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun register(displayName: String, password: String): Result<Unit> = runCatching {
-        val response = api.register(RegisterRequest(displayName, password))
+        val response = apiClient.service.register(RegisterRequest(displayName, password))
         if (!response.isSuccessful) error(response.errorBody()?.string() ?: "Registrierung fehlgeschlagen")
         val body = response.body()!!
         prefs.saveAuthToken(body.token)
@@ -33,7 +31,7 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun login(userSecret: String): Result<Unit> = runCatching {
-        val response = api.login(LoginRequest(userSecret))
+        val response = apiClient.service.login(LoginRequest(userSecret))
         if (!response.isSuccessful) error("Unbekannter Nutzer oder falscher Code")
         val body = response.body()!!
         prefs.saveAuthToken(body.token)
