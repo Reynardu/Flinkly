@@ -27,6 +27,7 @@ import dev.reynardus.flinkly.ui.screens.rooms.RoomsScreen
 import dev.reynardus.flinkly.ui.screens.scoreboard.ScoreboardScreen
 import dev.reynardus.flinkly.ui.screens.settings.SettingsScreen
 import dev.reynardus.flinkly.ui.screens.setup.HouseholdSetupScreen
+import dev.reynardus.flinkly.ui.screens.setup.JoinHouseholdScreen
 import dev.reynardus.flinkly.ui.screens.setup.LoginScreen
 import dev.reynardus.flinkly.ui.screens.setup.ServerSetupScreen
 import dev.reynardus.flinkly.ui.screens.tasks.TasksScreen
@@ -129,6 +130,17 @@ fun FlinklyNavGraph(startDestination: String) {
                         popUpTo(0) { inclusive = true }
                     }
                 })
+            }
+            composable(Route.JoinHousehold.path) { entry ->
+                val token = entry.arguments?.getString("token") ?: return@composable
+                JoinHouseholdScreen(
+                    token = token,
+                    onSuccess = {
+                        navController.navigate(Route.Dashboard.path) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
+                )
             }
         }
     }

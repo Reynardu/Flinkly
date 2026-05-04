@@ -1,6 +1,7 @@
 import secrets
 from datetime import date, datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -81,6 +82,67 @@ def create_invite_link(
         invite_url=f"{base_url}/household/join/{token}",
         token=token,
     )
+
+
+@router.get("/join/{token}", response_class=HTMLResponse)
+def invite_landing_page(token: str, db: Session = Depends(get_db)):
+    invite = db.query(HouseholdMember).filter(HouseholdMember.invite_token == token).first()
+    if not invite:
+        html = """<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Flinkly – Einladung</title>
+        <style>body{font-family:sans-serif;display:flex;justify-content:center;align-items:center;
+        min-height:100vh;margin:0;background:#f5f5f5;}
+        .card{background:#fff;border-radius:16px;padding:40px;text-align:center;max-width:400px;
+        box-shadow:0 2px 16px rgba(0,0,0,.1);}
+        h1{color:#6750A4;margin-bottom:8px;}
+        p{color:#666;}</style></head>
+        <body><div class="card">
+        <h1>Flinkly</h1>
+        <p>⚠️ Dieser Einladungslink ist ungültig oder wurde bereits verwendet.</p>
+        </div></body></html>"""
+        return HTMLResponse(content=html, status_code=404)
+
+    household = db.get(Household, invite.household_id)
+    deep_link = f"flinkly://join/{token}"
+    html = f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flinkly – Einladung zu {household.name}</title>
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+           background: #f5f5f5; min-height: 100vh;
+           display: flex; justify-content: center; align-items: center; padding: 24px; }}
+    .card {{ background: #fff; border-radius: 20px; padding: 40px 32px;
+             text-align: center; max-width: 400px; width: 100%;
+             box-shadow: 0 4px 24px rgba(0,0,0,.08); }}
+    .logo {{ font-size: 32px; font-weight: 700; color: #6750A4; margin-bottom: 4px; }}
+    .subtitle {{ color: #888; font-size: 14px; margin-bottom: 32px; }}
+    .household {{ font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }}
+    .info {{ color: #666; font-size: 15px; margin-bottom: 32px; }}
+    .btn {{ display: block; background: #6750A4; color: #fff; text-decoration: none;
+            border-radius: 100px; padding: 16px 32px; font-size: 16px; font-weight: 600;
+            margin-bottom: 16px; transition: background .2s; }}
+    .btn:hover {{ background: #5a4094; }}
+    .note {{ color: #aaa; font-size: 13px; line-height: 1.5; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Flinkly</div>
+    <div class="subtitle">Haushalts-App</div>
+    <div class="household">🏠 {household.name}</div>
+    <p class="info">Du wurdest eingeladen, diesem Haushalt beizutreten.</p>
+    <a class="btn" href="{deep_link}">In Flinkly öffnen</a>
+    <p class="note">Du brauchst die Flinkly-App, um beizutreten.<br>
+       Falls sie sich nicht öffnet, starte die App manuell und verwende den Einladungslink.</p>
+  </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
 
 
 @router.post("/join/{token}", response_model=HouseholdResponse)

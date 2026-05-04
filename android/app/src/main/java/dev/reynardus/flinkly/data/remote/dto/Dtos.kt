@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class RegisterRequest(
     @SerializedName("display_name") val displayName: String,
-    val password: String,
+    @SerializedName("password") val password: String,
 )
 
 data class LoginRequest(
@@ -27,7 +27,7 @@ data class UserDto(
     @SerializedName("created_at") val createdAt: String,
 )
 
-data class HouseholdCreate(val name: String)
+data class HouseholdCreate(@SerializedName("name") val name: String)
 
 data class HouseholdDto(
     val id: Int,
@@ -48,8 +48,16 @@ data class InviteLinkResponse(
     val token: String,
 )
 
-data class RoomCreate(val name: String, val icon: String = "home", val color: String = "#4CAF50")
-data class RoomUpdate(val name: String? = null, val icon: String? = null, val color: String? = null)
+data class RoomCreate(
+    @SerializedName("name") val name: String,
+    @SerializedName("icon") val icon: String = "home",
+    @SerializedName("color") val color: String = "#4CAF50",
+)
+data class RoomUpdate(
+    @SerializedName("name") val name: String? = null,
+    @SerializedName("icon") val icon: String? = null,
+    @SerializedName("color") val color: String? = null,
+)
 
 data class RoomDto(
     val id: Int,
@@ -63,9 +71,9 @@ data class RoomDto(
 )
 
 data class TaskCreate(
-    val title: String,
-    val description: String? = null,
-    val difficulty: Int = 2,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String? = null,
+    @SerializedName("difficulty") val difficulty: Int = 2,
     @SerializedName("frequency_type") val frequencyType: String = "WEEKLY",
     @SerializedName("frequency_value") val frequencyValue: String? = null,
     @SerializedName("due_date") val dueDate: String? = null,
@@ -95,7 +103,7 @@ data class TaskDto(
 
 data class CompletionCreate(
     @SerializedName("photo_url") val photoUrl: String? = null,
-    val note: String? = null,
+    @SerializedName("note") val note: String? = null,
 )
 
 data class CompletionDto(

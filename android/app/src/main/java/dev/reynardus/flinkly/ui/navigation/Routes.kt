@@ -14,6 +14,10 @@ sealed class Route(val path: String) {
     object Scoreboard : Route("scoreboard")
     object Achievements : Route("achievements")
     object Settings : Route("settings")
+
+    object JoinHousehold : Route("join_household/{token}") {
+        fun createRoute(token: String) = "join_household/$token"
+    }
 }
 
 val mainRoutes = setOf(

@@ -109,7 +109,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = vm.password,
                 onValueChange = vm::onPasswordChange,
-                label = { Text("Passwort") },
+                label = { Text("Haushaltspasswort") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
