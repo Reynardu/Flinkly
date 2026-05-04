@@ -64,9 +64,9 @@ details summary::-webkit-details-marker { display: none; }
 """
 
 def _verify_admin(credentials: HTTPBasicCredentials = Depends(security)):
-    ok = secrets.compare_digest(
-        credentials.password.encode(),
-        settings.admin_password.encode(),
+    ok = (
+        secrets.compare_digest(credentials.username.encode(), settings.admin_username.encode())
+        and secrets.compare_digest(credentials.password.encode(), settings.admin_password.encode())
     )
     if not ok:
         raise HTTPException(
