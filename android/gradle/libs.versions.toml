@@ -12,6 +12,7 @@ okhttp = "4.12.0"
 coil = "2.7.0"
 lifecycle = "2.8.6"
 coroutines = "1.9.0"
+glance = "1.1.0"
 
 [libraries]
 # Compose
@@ -59,6 +60,10 @@ coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutin
 # Core
 core-ktx = { group = "androidx.core", name = "core-ktx", version = "1.13.1" }
 splashscreen = { group = "androidx.core", name = "core-splashscreen", version = "1.0.1" }
+
+# Glance (Widgets)
+glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

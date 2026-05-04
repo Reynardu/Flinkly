@@ -34,6 +34,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -70,6 +71,16 @@ private val frequencyOptions = listOf(
     "WEEKLY" to "Wöchentlich",
     "MONTHLY" to "Monatlich",
     "ONCE" to "Einmalig",
+)
+
+private val weekdays = listOf(
+    "MON" to "Mo",
+    "TUE" to "Di",
+    "WED" to "Mi",
+    "THU" to "Do",
+    "FRI" to "Fr",
+    "SAT" to "Sa",
+    "SUN" to "So",
 )
 
 private val difficultyOptions = listOf(
@@ -423,7 +434,7 @@ private fun TaskCard(
                     Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = frequencyLabel(task.frequencyType),
+                        text = frequencyLabel(task.frequencyType, task.frequencyValue),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -484,6 +495,29 @@ private fun CompletionHistoryItem(
         )
     }
     HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), thickness = 0.5.dp)
+}
+
+@Composable
+private fun DayOfWeekPicker(value: String?, onChange: (String?) -> Unit) {
+    val selected = value?.split(",")?.filter { it.isNotBlank() }?.toSet() ?: emptySet()
+    Column {
+        Text("Wochentage", style = MaterialTheme.typography.labelLarge)
+        Spacer(Modifier.height(6.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            weekdays.forEach { (code, label) ->
+                val isSelected = code in selected
+                FilterChip(
+                    selected = isSelected,
+                    onClick = {
+                        val next = if (isSelected) selected - code else selected + code
+                        onChange(if (next.isEmpty()) null else weekdays.filter { it.first in next }.joinToString(",") { it.first })
+                    },
+                    label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -579,6 +613,13 @@ private fun CreateTaskDialog(vm: TasksViewModel) {
                             )
                         }
                     }
+                }
+
+                if (vm.newFrequencyType == "WEEKLY") {
+                    DayOfWeekPicker(
+                        value = vm.newFrequencyValue,
+                        onChange = vm::onFrequencyValueChange,
+                    )
                 }
 
                 Row(
@@ -711,6 +752,13 @@ private fun EditTaskDialog(vm: TasksViewModel) {
                     }
                 }
 
+                if (vm.newFrequencyType == "WEEKLY") {
+                    DayOfWeekPicker(
+                        value = vm.newFrequencyValue,
+                        onChange = vm::onFrequencyValueChange,
+                    )
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -747,10 +795,17 @@ private fun EditTaskDialog(vm: TasksViewModel) {
     )
 }
 
-private fun frequencyLabel(type: String) = when (type) {
-    "DAILY" -> "täglich"
-    "WEEKLY" -> "wöchentlich"
-    "MONTHLY" -> "monatlich"
-    "ONCE" -> "einmalig"
-    else -> type
+private fun frequencyLabel(type: String, value: String? = null): String {
+    if (type == "WEEKLY" && !value.isNullOrBlank()) {
+        val dayMap = mapOf("MON" to "Mo", "TUE" to "Di", "WED" to "Mi", "THU" to "Do", "FRI" to "Fr", "SAT" to "Sa", "SUN" to "So")
+        val days = value.split(",").mapNotNull { dayMap[it.trim()] }
+        if (days.isNotEmpty()) return days.joinToString(", ")
+    }
+    return when (type) {
+        "DAILY" -> "täglich"
+        "WEEKLY" -> "wöchentlich"
+        "MONTHLY" -> "monatlich"
+        "ONCE" -> "einmalig"
+        else -> type
+    }
 }

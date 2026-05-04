@@ -84,4 +84,7 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.core.ktx)
     implementation(libs.splashscreen)
+
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
 }

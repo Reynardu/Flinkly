@@ -1,5 +1,6 @@
 package dev.reynardus.flinkly.ui.screens.tasks
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -7,12 +8,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.reynardus.flinkly.data.local.entities.TaskEntity
 import dev.reynardus.flinkly.data.remote.dto.CompletionDto
 import dev.reynardus.flinkly.data.remote.dto.TaskCreate
 import dev.reynardus.flinkly.data.repository.RoomRepository
 import dev.reynardus.flinkly.data.repository.TaskRepository
 import dev.reynardus.flinkly.data.store.PreferencesStore
+import dev.reynardus.flinkly.widget.WidgetUpdater
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,6 +32,7 @@ class TasksViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val roomRepository: RoomRepository,
     private val prefs: PreferencesStore,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val roomIdFlow = MutableStateFlow(0)
@@ -42,6 +46,8 @@ class TasksViewModel @Inject constructor(
     var newDifficulty by mutableIntStateOf(2)
         private set
     var newFrequencyType by mutableStateOf("WEEKLY")
+        private set
+    var newFrequencyValue by mutableStateOf<String?>(null)
         private set
     var newAutoRepeat by mutableStateOf(true)
         private set
@@ -89,7 +95,24 @@ class TasksViewModel @Inject constructor(
     private suspend fun syncTasks(roomId: Int) {
         taskRepository.syncTasks(roomId).onSuccess { dtos ->
             _completions.value = dtos.associate { it.id to it.completions }
+            val openTasks = dtos.filter { it.completions.none { c -> isToday(c.completedAt) } }
+            val todayPoints = dtos.sumOf { task ->
+                task.completions.count { isToday(it.completedAt) } * task.difficulty
+            }
+            WidgetUpdater.update(
+                context = context,
+                openCount = openTasks.size,
+                titles = openTasks.map { it.title },
+                todayPoints = todayPoints,
+            )
         }
+    }
+
+    private fun isToday(isoDate: String?): Boolean = try {
+        val date = java.time.OffsetDateTime.parse(isoDate).toLocalDate()
+        date == java.time.LocalDate.now()
+    } catch (_: Exception) {
+        false
     }
 
     // Nach Mutationen: Rooms neu laden (cascade löscht Tasks), dann Tasks wiederherstellen
@@ -103,6 +126,7 @@ class TasksViewModel @Inject constructor(
         newDescription = ""
         newDifficulty = 2
         newFrequencyType = "WEEKLY"
+        newFrequencyValue = null
         newAutoRepeat = true
         error = null
         showCreateDialog = true
@@ -114,6 +138,7 @@ class TasksViewModel @Inject constructor(
         newDescription = task.description ?: ""
         newDifficulty = task.difficulty
         newFrequencyType = task.frequencyType
+        newFrequencyValue = task.frequencyValue
         newAutoRepeat = task.autoRepeat
         error = null
     }
@@ -132,6 +157,7 @@ class TasksViewModel @Inject constructor(
                     description = newDescription.trim().ifBlank { null },
                     difficulty = newDifficulty,
                     frequencyType = newFrequencyType,
+                    frequencyValue = newFrequencyValue,
                     autoRepeat = newAutoRepeat,
                 )
             )
@@ -145,7 +171,8 @@ class TasksViewModel @Inject constructor(
     fun onTitleChange(v: String) { newTitle = v }
     fun onDescriptionChange(v: String) { newDescription = v }
     fun onDifficultyChange(v: Int) { newDifficulty = v }
-    fun onFrequencyChange(v: String) { newFrequencyType = v }
+    fun onFrequencyChange(v: String) { newFrequencyType = v; if (v != "WEEKLY") newFrequencyValue = null }
+    fun onFrequencyValueChange(v: String?) { newFrequencyValue = v }
     fun onAutoRepeatChange(v: Boolean) { newAutoRepeat = v }
 
     fun createTask() {
@@ -159,6 +186,7 @@ class TasksViewModel @Inject constructor(
                     description = newDescription.trim().ifBlank { null },
                     difficulty = newDifficulty,
                     frequencyType = newFrequencyType,
+                    frequencyValue = newFrequencyValue,
                     autoRepeat = newAutoRepeat,
                 )
             )
