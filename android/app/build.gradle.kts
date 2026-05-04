@@ -1,10 +1,17 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
+
+fun gitVersionCode(): Int =
+    Runtime.getRuntime().exec("git rev-list --count HEAD")
+        .inputStream.bufferedReader().readText().trim().toIntOrNull() ?: 1
+
+fun gitVersionName(): String =
+    Runtime.getRuntime().exec("git describe --tags --always")
+        .inputStream.bufferedReader().readText().trim().ifEmpty { "dev" }
 
 android {
     namespace = "dev.reynardus.flinkly"
@@ -14,8 +21,8 @@ android {
         applicationId = "dev.reynardus.flinkly"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = gitVersionCode()
+        versionName = gitVersionName()
     }
 
     buildTypes {
@@ -30,12 +37,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
