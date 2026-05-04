@@ -20,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
@@ -145,6 +146,10 @@ fun TasksScreen(
         CreateTaskDialog(vm = vm)
     }
 
+    if (vm.editingTaskId != null) {
+        EditTaskDialog(vm = vm)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -221,6 +226,7 @@ fun TasksScreen(
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                                 onComplete = { vm.completeTask(task.id) },
                                 onDelete = { vm.deleteTask(task.id) },
+                                onEdit = { vm.openEditDialog(task) },
                             )
                         }
                     }
@@ -242,6 +248,7 @@ fun TasksScreen(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                             onComplete = { vm.completeTask(task.id) },
                             onDelete = { vm.deleteTask(task.id) },
+                            onEdit = { vm.openEditDialog(task) },
                             dimmed = true,
                         )
                     }
@@ -321,6 +328,7 @@ private fun TaskCard(
     modifier: Modifier = Modifier,
     onComplete: () -> Unit,
     onDelete: () -> Unit,
+    onEdit: () -> Unit,
     dimmed: Boolean = false,
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -373,6 +381,13 @@ private fun TaskCard(
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
+                }
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Bearbeiten",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 IconButton(onClick = { showDeleteDialog = true }) {
                     Icon(
@@ -598,6 +613,136 @@ private fun CreateTaskDialog(vm: TasksViewModel) {
         },
         dismissButton = {
             TextButton(onClick = vm::dismissCreateDialog) { Text("Abbrechen") }
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditTaskDialog(vm: TasksViewModel) {
+    var frequencyExpanded by remember { mutableStateOf(false) }
+    val selectedFreqLabel = frequencyOptions.firstOrNull { it.first == vm.newFrequencyType }?.second ?: "Wöchentlich"
+
+    AlertDialog(
+        onDismissRequest = vm::dismissEditDialog,
+        title = { Text("Aufgabe bearbeiten") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = vm.newTitle,
+                    onValueChange = vm::onTitleChange,
+                    label = { Text("Titel") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                OutlinedTextField(
+                    value = vm.newDescription,
+                    onValueChange = vm::onDescriptionChange,
+                    label = { Text("Beschreibung (optional)") },
+                    maxLines = 2,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Text("Geschätzte Zeit", style = MaterialTheme.typography.labelLarge)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        difficultyOptions.take(3).forEach { (lvl, label) ->
+                            TextButton(
+                                onClick = { vm.onDifficultyChange(lvl) },
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(
+                                    label,
+                                    color = if (vm.newDifficulty == lvl)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        difficultyOptions.drop(3).forEach { (lvl, label) ->
+                            TextButton(
+                                onClick = { vm.onDifficultyChange(lvl) },
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text(
+                                    label,
+                                    color = if (vm.newDifficulty == lvl)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                        }
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+
+                ExposedDropdownMenuBox(
+                    expanded = frequencyExpanded,
+                    onExpandedChange = { frequencyExpanded = it },
+                ) {
+                    OutlinedTextField(
+                        value = selectedFreqLabel,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Wiederholung") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(frequencyExpanded) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                    )
+                    ExposedDropdownMenu(
+                        expanded = frequencyExpanded,
+                        onDismissRequest = { frequencyExpanded = false },
+                    ) {
+                        frequencyOptions.forEach { (value, label) ->
+                            DropdownMenuItem(
+                                text = { Text(label) },
+                                onClick = { vm.onFrequencyChange(value); frequencyExpanded = false },
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("Automatisch wiederholen", style = MaterialTheme.typography.bodyMedium)
+                    Switch(checked = vm.newAutoRepeat, onCheckedChange = vm::onAutoRepeatChange)
+                }
+
+                vm.error?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = vm::saveTask,
+                enabled = !vm.isSaving && vm.newTitle.isNotBlank(),
+            ) {
+                if (vm.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Text("Speichern")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = vm::dismissEditDialog) { Text("Abbrechen") }
         },
     )
 }

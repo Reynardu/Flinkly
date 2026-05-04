@@ -70,6 +70,9 @@ interface ApiService {
     @POST("tasks/room/{roomId}")
     suspend fun createTask(@Path("roomId") roomId: Int, @Body body: TaskCreate): Response<TaskDto>
 
+    @PUT("tasks/{id}")
+    suspend fun updateTask(@Path("id") id: Int, @Body body: TaskCreate): Response<TaskDto>
+
     @DELETE("tasks/{id}")
     suspend fun deleteTask(@Path("id") id: Int): Response<Unit>
 

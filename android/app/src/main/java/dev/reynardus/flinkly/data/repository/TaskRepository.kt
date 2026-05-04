@@ -42,6 +42,14 @@ class TaskRepository @Inject constructor(
         response.body()!!
     }
 
+    suspend fun updateTask(taskId: Int, task: TaskCreate): Result<TaskDto> = runCatching {
+        val response = api.updateTask(taskId, task)
+        if (!response.isSuccessful) error("Aufgabe konnte nicht gespeichert werden")
+        val dto = response.body()!!
+        dao.upsertAll(listOf(dto.toEntity()))
+        dto
+    }
+
     suspend fun deleteTask(taskId: Int): Result<Unit> = runCatching {
         val response = api.deleteTask(taskId)
         if (!response.isSuccessful) error("Aufgabe konnte nicht gelöscht werden")

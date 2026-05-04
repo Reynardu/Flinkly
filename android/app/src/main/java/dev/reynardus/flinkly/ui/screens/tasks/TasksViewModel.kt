@@ -50,6 +50,11 @@ class TasksViewModel @Inject constructor(
     var error by mutableStateOf<String?>(null)
         private set
 
+    var editingTaskId by mutableStateOf<Int?>(null)
+        private set
+    var isSaving by mutableStateOf(false)
+        private set
+
     var pendingEarlyCompleteTaskId by mutableStateOf<Int?>(null)
         private set
     var pendingEarlyCompleteDueDate by mutableStateOf<String?>(null)
@@ -101,6 +106,39 @@ class TasksViewModel @Inject constructor(
         newAutoRepeat = true
         error = null
         showCreateDialog = true
+    }
+
+    fun openEditDialog(task: TaskEntity) {
+        editingTaskId = task.id
+        newTitle = task.title
+        newDescription = task.description ?: ""
+        newDifficulty = task.difficulty
+        newFrequencyType = task.frequencyType
+        newAutoRepeat = task.autoRepeat
+        error = null
+    }
+
+    fun dismissEditDialog() { editingTaskId = null }
+
+    fun saveTask() {
+        val taskId = editingTaskId ?: return
+        val roomId = roomIdFlow.value
+        viewModelScope.launch {
+            isSaving = true
+            error = null
+            taskRepository.updateTask(
+                taskId, TaskCreate(
+                    title = newTitle.trim(),
+                    description = newDescription.trim().ifBlank { null },
+                    difficulty = newDifficulty,
+                    frequencyType = newFrequencyType,
+                    autoRepeat = newAutoRepeat,
+                )
+            )
+                .onSuccess { editingTaskId = null; syncAfterMutation(roomId) }
+                .onFailure { error = it.message }
+            isSaving = false
+        }
     }
 
     fun dismissCreateDialog() { showCreateDialog = false }
