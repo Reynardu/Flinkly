@@ -64,6 +64,9 @@ interface ApiService {
     suspend fun getRoomSuggestions(): Response<List<Map<String, String>>>
 
     // Tasks
+    @GET("tasks/household/{householdId}/open")
+    suspend fun getOpenHouseholdTasks(@Path("householdId") householdId: Int): Response<List<TaskDto>>
+
     @GET("tasks/room/{roomId}")
     suspend fun getTasks(@Path("roomId") roomId: Int): Response<List<TaskDto>>
 

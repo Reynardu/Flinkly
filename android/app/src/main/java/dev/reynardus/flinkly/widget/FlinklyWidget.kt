@@ -137,6 +137,12 @@ object WidgetUpdater {
         }
     }
 
+    fun updateOpenCount(context: Context, openCount: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            applyState(context) { p -> p[KEY_OPEN_COUNT] = openCount }
+        }
+    }
+
     fun updatePoints(context: Context, todayPoints: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             applyState(context) { p -> p[KEY_TODAY_POINTS] = todayPoints }

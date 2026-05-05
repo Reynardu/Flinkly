@@ -52,6 +52,27 @@ TASK_TEMPLATES = {
 }
 
 
+@router.get("/household/{household_id}/open", response_model=list[TaskResponse])
+def list_open_household_tasks(
+    household_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_member(db, household_id, current_user.id)
+    today = datetime.now(timezone.utc).date()
+    rooms = db.query(Room).filter(Room.household_id == household_id).all()
+    result = []
+    for room in rooms:
+        for task in room.tasks:
+            if not task.is_suggestion and (
+                task.next_due_at is None or task.next_due_at.date() <= today
+            ):
+                t = TaskResponse.model_validate(task)
+                t.completion_count = len(task.completions)
+                result.append(t)
+    return result
+
+
 @router.get("/room/{room_id}", response_model=list[TaskResponse])
 def list_tasks(
     room_id: int,

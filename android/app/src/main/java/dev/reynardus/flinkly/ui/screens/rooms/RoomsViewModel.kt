@@ -74,13 +74,7 @@ class RoomsViewModel @Inject constructor(
 
     private suspend fun syncAndUpdateWidget(householdId: Int) {
         roomRepository.syncRooms(householdId).onSuccess { dtos ->
-            val openCount = dtos.sumOf { it.openTaskCount }
-            val titles = dtos.sortedByDescending { it.openTaskCount }
-                .flatMap { room ->
-                    // Raumnamen als Platzhalter-Titel wenn keine Task-Titel verfügbar
-                    List(room.openTaskCount) { room.name }
-                }
-            WidgetUpdater.updateTasks(context, openCount, titles)
+            WidgetUpdater.updateOpenCount(context, dtos.sumOf { it.openTaskCount })
         }
     }
 

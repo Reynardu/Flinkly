@@ -49,6 +49,10 @@ class DashboardViewModel @Inject constructor(
                     _progress.value = progress
                     WidgetUpdater.updatePoints(context, progress.todayPoints)
                 }
+            runCatching { api.getOpenHouseholdTasks(householdId).body() }.getOrNull()
+                ?.let { tasks ->
+                    WidgetUpdater.updateTasks(context, tasks.size, tasks.map { it.title })
+                }
             runCatching { api.getMe().body() }.getOrNull()
                 ?.let { _user.value = it }
             runCatching { api.getRecentCompletions(householdId, limit = 10).body() }.getOrNull()
