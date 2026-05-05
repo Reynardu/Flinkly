@@ -17,6 +17,24 @@ def calculate_points(difficulty: int, frequency_type: FrequencyType) -> int:
     return round(base * multiplier)
 
 
+_WEEKDAY_MAP = {"MON": 0, "TUE": 1, "WED": 2, "THU": 3, "FRI": 4, "SAT": 5, "SUN": 6}
+
+
+def _next_weekday_occurrence(now: datetime, frequency_value: str) -> datetime:
+    target_days = sorted(
+        _WEEKDAY_MAP[d.strip()]
+        for d in frequency_value.split(",")
+        if d.strip() in _WEEKDAY_MAP
+    )
+    if not target_days:
+        return now + timedelta(weeks=1)
+    current = now.weekday()
+    for delta in range(1, 8):
+        if (current + delta) % 7 in target_days:
+            return now + timedelta(days=delta)
+    return now + timedelta(weeks=1)
+
+
 def calculate_next_due(task: Task) -> datetime | None:
     if not task.auto_repeat:
         return None
@@ -26,6 +44,8 @@ def calculate_next_due(task: Task) -> datetime | None:
         case FrequencyType.DAILY:
             return now + timedelta(days=1)
         case FrequencyType.WEEKLY:
+            if task.frequency_value:
+                return _next_weekday_occurrence(now, task.frequency_value)
             return now + timedelta(weeks=1)
         case FrequencyType.MONTHLY:
             return now + timedelta(days=30)

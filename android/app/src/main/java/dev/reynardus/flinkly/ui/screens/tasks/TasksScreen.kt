@@ -51,10 +51,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -97,7 +99,8 @@ private fun difficultyToTime(difficulty: Int): String =
 private fun TaskEntity.isOpen(): Boolean {
     val nextDue = nextDueAt ?: return true
     return try {
-        java.time.OffsetDateTime.parse(nextDue).toInstant().isBefore(java.time.Instant.now())
+        val dueDate = java.time.OffsetDateTime.parse(nextDue).toLocalDate()
+        !dueDate.isAfter(java.time.LocalDate.now())
     } catch (_: Exception) {
         true
     }
@@ -116,8 +119,17 @@ fun TasksScreen(
     val tasks by vm.tasks.collectAsState()
     val completions by vm.completions.collectAsState()
 
-    val openTasks = remember(tasks) { tasks.filter { it.isOpen() } }
-    val doneTasks = remember(tasks) { tasks.filter { !it.isOpen() } }
+    // Minutentakt-Ticker damit nextDueAt-Grenze live erkannt wird
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(60_000)
+            now = System.currentTimeMillis()
+        }
+    }
+
+    val openTasks = remember(tasks, now) { tasks.filter { it.isOpen() } }
+    val doneTasks = remember(tasks, now) { tasks.filter { !it.isOpen() } }
 
     val recentCompletions = remember(completions, tasks) {
         completions
@@ -600,7 +612,7 @@ private fun CreateTaskDialog(vm: TasksViewModel) {
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(frequencyExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(),
+                            .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable),
                     )
                     ExposedDropdownMenu(
                         expanded = frequencyExpanded,
@@ -737,7 +749,7 @@ private fun EditTaskDialog(vm: TasksViewModel) {
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(frequencyExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(),
+                            .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable),
                     )
                     ExposedDropdownMenu(
                         expanded = frequencyExpanded,

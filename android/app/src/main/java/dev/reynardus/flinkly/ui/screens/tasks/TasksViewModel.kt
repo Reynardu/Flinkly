@@ -32,7 +32,7 @@ class TasksViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val roomRepository: RoomRepository,
     private val prefs: PreferencesStore,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val roomIdFlow = MutableStateFlow(0)
@@ -95,24 +95,23 @@ class TasksViewModel @Inject constructor(
     private suspend fun syncTasks(roomId: Int) {
         taskRepository.syncTasks(roomId).onSuccess { dtos ->
             _completions.value = dtos.associate { it.id to it.completions }
-            val openTasks = dtos.filter { it.completions.none { c -> isToday(c.completedAt) } }
-            val todayPoints = dtos.sumOf { task ->
-                task.completions.count { isToday(it.completedAt) } * task.difficulty
-            }
+            val openTasks = dtos.filter { isOpen(it.nextDueAt) }
             WidgetUpdater.update(
                 context = context,
                 openCount = openTasks.size,
                 titles = openTasks.map { it.title },
-                todayPoints = todayPoints,
             )
         }
     }
 
-    private fun isToday(isoDate: String?): Boolean = try {
-        val date = java.time.OffsetDateTime.parse(isoDate).toLocalDate()
-        date == java.time.LocalDate.now()
-    } catch (_: Exception) {
-        false
+    private fun isOpen(nextDueAt: String?): Boolean {
+        nextDueAt ?: return true
+        return try {
+            val dueDate = java.time.OffsetDateTime.parse(nextDueAt).toLocalDate()
+            !dueDate.isAfter(java.time.LocalDate.now())
+        } catch (_: Exception) {
+            true
+        }
     }
 
     // Nach Mutationen: Rooms neu laden (cascade löscht Tasks), dann Tasks wiederherstellen

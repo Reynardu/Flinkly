@@ -130,18 +130,31 @@ class FlinklyWidget : GlanceAppWidget() {
 object WidgetUpdater {
     fun update(context: Context, openCount: Int, titles: List<String>, todayPoints: Int = 0) {
         CoroutineScope(Dispatchers.IO).launch {
-            val manager = GlanceAppWidgetManager(context)
-            val ids = manager.getGlanceIds(FlinklyWidget::class.java)
-            ids.forEach { id ->
-                updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
-                    prefs.toMutablePreferences().also { p ->
-                        p[KEY_OPEN_COUNT] = openCount
-                        p[KEY_TITLES] = titles.take(4).joinToString("|")
-                        p[KEY_TODAY_POINTS] = todayPoints
-                    }
-                }
-                FlinklyWidget().update(context, id)
+            applyState(context) { p ->
+                p[KEY_OPEN_COUNT] = openCount
+                p[KEY_TITLES] = titles.take(4).joinToString("|")
+                p[KEY_TODAY_POINTS] = todayPoints
             }
+        }
+    }
+
+    fun updatePoints(context: Context, todayPoints: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            applyState(context) { p -> p[KEY_TODAY_POINTS] = todayPoints }
+        }
+    }
+
+    private suspend fun applyState(
+        context: Context,
+        block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit,
+    ) {
+        val manager = GlanceAppWidgetManager(context)
+        val ids = manager.getGlanceIds(FlinklyWidget::class.java)
+        ids.forEach { id ->
+            updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { prefs ->
+                prefs.toMutablePreferences().also(block)
+            }
+            FlinklyWidget().update(context, id)
         }
     }
 }
