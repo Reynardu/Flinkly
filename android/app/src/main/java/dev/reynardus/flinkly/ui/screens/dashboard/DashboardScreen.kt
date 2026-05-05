@@ -40,11 +40,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import dev.reynardus.flinkly.data.remote.dto.RecentCompletionDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
+    LifecycleResumeEffect(Unit) { vm.refresh(); onPauseOrDispose {} }
+
     val progress by vm.progress.collectAsState()
     val user by vm.user.collectAsState()
     val recentCompletions by vm.recentCompletions.collectAsState()

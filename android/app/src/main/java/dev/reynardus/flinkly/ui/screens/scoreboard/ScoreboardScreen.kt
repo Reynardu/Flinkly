@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 
 private val periods = listOf(
     "weekly" to "Woche",
@@ -51,6 +52,8 @@ private val periods = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScoreboardScreen(vm: ScoreboardViewModel = hiltViewModel()) {
+    LifecycleResumeEffect(Unit) { vm.refresh(); onPauseOrDispose {} }
+
     val scoreboard by vm.scoreboard.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
     val currentUserId by vm.currentUserId.collectAsState()

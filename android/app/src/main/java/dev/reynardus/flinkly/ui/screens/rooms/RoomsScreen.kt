@@ -50,6 +50,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import dev.reynardus.flinkly.data.local.entities.RoomEntity
 
 private val iconOptions = listOf("🏠", "🍳", "🛁", "🛏", "🚗", "🌿", "📦", "🏢", "🧹", "🪴")
@@ -65,6 +66,8 @@ fun RoomsScreen(
     onRoomClick: (roomId: Int, roomName: String) -> Unit,
     vm: RoomsViewModel = hiltViewModel(),
 ) {
+    LifecycleResumeEffect(Unit) { vm.refresh(); onPauseOrDispose {} }
+
     val rooms by vm.rooms.collectAsState()
 
     if (vm.showCreateDialog) {
