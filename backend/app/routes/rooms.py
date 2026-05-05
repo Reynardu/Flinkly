@@ -35,7 +35,7 @@ def list_rooms(
 ):
     _require_member(db, household_id, current_user.id)
     rooms = db.query(Room).filter(Room.household_id == household_id).all()
-    now = datetime.now(timezone.utc)
+    today = datetime.now(timezone.utc).date()
     result = []
     for room in rooms:
         r = RoomResponse.model_validate(room)
@@ -43,7 +43,7 @@ def list_rooms(
         r.task_count = len(non_suggestions)
         r.open_task_count = sum(
             1 for t in non_suggestions
-            if t.next_due_at is None or t.next_due_at <= now
+            if t.next_due_at is None or t.next_due_at.date() <= today
         )
         result.append(r)
     return result
