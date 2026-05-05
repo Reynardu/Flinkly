@@ -128,12 +128,11 @@ class FlinklyWidget : GlanceAppWidget() {
 }
 
 object WidgetUpdater {
-    fun update(context: Context, openCount: Int, titles: List<String>, todayPoints: Int = 0) {
+    fun updateTasks(context: Context, openCount: Int, titles: List<String>) {
         CoroutineScope(Dispatchers.IO).launch {
             applyState(context) { p ->
                 p[KEY_OPEN_COUNT] = openCount
                 p[KEY_TITLES] = titles.take(4).joinToString("|")
-                p[KEY_TODAY_POINTS] = todayPoints
             }
         }
     }

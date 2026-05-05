@@ -1,14 +1,17 @@
 package dev.reynardus.flinkly.ui.screens.rooms
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.reynardus.flinkly.data.local.entities.RoomEntity
 import dev.reynardus.flinkly.data.repository.RoomRepository
 import dev.reynardus.flinkly.data.store.PreferencesStore
+import dev.reynardus.flinkly.widget.WidgetUpdater
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +26,7 @@ import javax.inject.Inject
 class RoomsViewModel @Inject constructor(
     private val roomRepository: RoomRepository,
     private val prefs: PreferencesStore,
+    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     var showCreateDialog by mutableStateOf(false)
@@ -55,7 +59,7 @@ class RoomsViewModel @Inject constructor(
         viewModelScope.launch {
             val id = prefs.householdId.first() ?: return@launch
             householdId = id
-            roomRepository.syncRooms(id)
+            syncAndUpdateWidget(id)
         }
     }
 
@@ -63,8 +67,20 @@ class RoomsViewModel @Inject constructor(
         val id = householdId ?: return
         viewModelScope.launch {
             isRefreshing = true
-            roomRepository.syncRooms(id)
+            syncAndUpdateWidget(id)
             isRefreshing = false
+        }
+    }
+
+    private suspend fun syncAndUpdateWidget(householdId: Int) {
+        roomRepository.syncRooms(householdId).onSuccess { dtos ->
+            val openCount = dtos.sumOf { it.openTaskCount }
+            val titles = dtos.sortedByDescending { it.openTaskCount }
+                .flatMap { room ->
+                    // Raumnamen als Platzhalter-Titel wenn keine Task-Titel verfügbar
+                    List(room.openTaskCount) { room.name }
+                }
+            WidgetUpdater.updateTasks(context, openCount, titles)
         }
     }
 

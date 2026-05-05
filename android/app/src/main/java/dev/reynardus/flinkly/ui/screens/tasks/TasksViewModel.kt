@@ -96,7 +96,7 @@ class TasksViewModel @Inject constructor(
         taskRepository.syncTasks(roomId).onSuccess { dtos ->
             _completions.value = dtos.associate { it.id to it.completions }
             val openTasks = dtos.filter { isOpen(it.nextDueAt) }
-            WidgetUpdater.update(
+            WidgetUpdater.updateTasks(
                 context = context,
                 openCount = openTasks.size,
                 titles = openTasks.map { it.title },
