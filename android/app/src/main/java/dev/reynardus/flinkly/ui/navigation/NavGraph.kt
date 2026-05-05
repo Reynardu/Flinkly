@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -47,8 +48,13 @@ private val bottomNavItems = listOf(
 )
 
 @Composable
-fun FlinklyNavGraph(startDestination: String) {
+fun FlinklyNavGraph(
+    startDestination: String,
+    inviteToken: String? = null,
+    onNavControllerReady: (NavController) -> Unit = {},
+) {
     val navController = rememberNavController()
+    androidx.compose.runtime.LaunchedEffect(navController) { onNavControllerReady(navController) }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
@@ -92,7 +98,11 @@ fun FlinklyNavGraph(startDestination: String) {
             }
             composable(Route.Login.path) {
                 LoginScreen(onSuccess = { hasHousehold ->
-                    val dest = if (hasHousehold) Route.Dashboard.path else Route.HouseholdSetup.path
+                    val dest = when {
+                        inviteToken != null && !hasHousehold -> Route.JoinHousehold.createRoute(inviteToken)
+                        hasHousehold -> Route.Dashboard.path
+                        else -> Route.HouseholdSetup.path
+                    }
                     navController.navigate(dest) {
                         popUpTo(Route.Login.path) { inclusive = true }
                     }

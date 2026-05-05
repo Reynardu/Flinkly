@@ -1,5 +1,6 @@
 package dev.reynardus.flinkly
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import dagger.hilt.android.AndroidEntryPoint
 import dev.reynardus.flinkly.data.repository.AuthRepository
 import dev.reynardus.flinkly.ui.navigation.FlinklyNavGraph
@@ -34,14 +36,13 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authRepository: AuthRepository
 
+    private var navController: NavController? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val inviteToken = intent?.data?.let { uri ->
-            if (uri.scheme == "flinkly" && uri.host == "join") uri.lastPathSegment else null
-        }
-
+        val inviteToken = extractInviteToken(intent)
         var startDestination by mutableStateOf<String?>(null)
 
         lifecycleScope.launch {
@@ -57,13 +58,35 @@ class MainActivity : ComponentActivity() {
             FlinklyTheme {
                 val dest = startDestination
                 if (dest != null) {
-                    FlinklyNavGraph(startDestination = dest)
+                    FlinklyNavGraph(
+                        startDestination = dest,
+                        inviteToken = inviteToken,
+                        onNavControllerReady = { navController = it },
+                    )
                 } else {
                     AppLoadingScreen()
                 }
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val token = extractInviteToken(intent) ?: return
+        lifecycleScope.launch {
+            val nav = navController ?: return@launch
+            val dest = if (authRepository.isLoggedIn())
+                Route.JoinHousehold.createRoute(token)
+            else
+                Route.ServerSetup.path
+            nav.navigate(dest) { launchSingleTop = true }
+        }
+    }
+
+    private fun extractInviteToken(intent: Intent?): String? =
+        intent?.data?.let { uri ->
+            if (uri.scheme == "flinkly" && uri.host == "join") uri.lastPathSegment else null
+        }
 }
 
 @Composable
