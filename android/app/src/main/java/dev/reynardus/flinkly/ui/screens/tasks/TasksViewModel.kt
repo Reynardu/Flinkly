@@ -1,6 +1,5 @@
 package dev.reynardus.flinkly.ui.screens.tasks
 
-import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -8,14 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.reynardus.flinkly.data.local.entities.TaskEntity
 import dev.reynardus.flinkly.data.remote.dto.CompletionDto
 import dev.reynardus.flinkly.data.remote.dto.TaskCreate
 import dev.reynardus.flinkly.data.repository.RoomRepository
 import dev.reynardus.flinkly.data.repository.TaskRepository
 import dev.reynardus.flinkly.data.store.PreferencesStore
-import dev.reynardus.flinkly.widget.WidgetUpdater
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,7 +29,6 @@ class TasksViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val roomRepository: RoomRepository,
     private val prefs: PreferencesStore,
-    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val roomIdFlow = MutableStateFlow(0)
@@ -95,12 +91,6 @@ class TasksViewModel @Inject constructor(
     private suspend fun syncTasks(roomId: Int) {
         taskRepository.syncTasks(roomId).onSuccess { dtos ->
             _completions.value = dtos.associate { it.id to it.completions }
-            val openTasks = dtos.filter { isOpen(it.nextDueAt) }
-            WidgetUpdater.updateTasks(
-                context = context,
-                openCount = openTasks.size,
-                titles = openTasks.map { it.title },
-            )
         }
     }
 
