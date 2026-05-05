@@ -49,9 +49,15 @@ class DashboardViewModel @Inject constructor(
                     _progress.value = progress
                     WidgetUpdater.updatePoints(context, progress.todayPoints)
                 }
+            val roomNames = runCatching { api.getRooms(householdId).body() }.getOrNull()
+                ?.associate { it.id to it.name } ?: emptyMap()
             runCatching { api.getOpenHouseholdTasks(householdId).body() }.getOrNull()
                 ?.let { tasks ->
-                    WidgetUpdater.updateTasks(context, tasks.size, tasks.map { it.title })
+                    val titles = tasks.map { task ->
+                        val room = roomNames[task.roomId]
+                        if (room != null) "${task.title} ($room)" else task.title
+                    }
+                    WidgetUpdater.updateTasks(context, tasks.size, titles)
                 }
             runCatching { api.getMe().body() }.getOrNull()
                 ?.let { _user.value = it }
