@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Waschbär – Bereit mit Wäschekorb und Putzmittel
+    Zustand: Normaler Tagesstart, Variante 2
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- ── Wäschekorb (links unten) ── -->
+    <!-- Korb-Körper -->
+    <path android:fillColor="#BCAAA4"
+        android:pathData="M 5,145 C 5,140 55,138 55,143 L 58,195 L 2,195 Z" />
+    <!-- Korb-Muster (Flechtwerk) -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 8,150 L 56,148" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 9,160 L 57,158" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 10,170 L 58,168" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 12,180 L 58,178" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 20,143 L 16,195" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 35,142 L 33,195" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="1.5"
+        android:pathData="M 50,143 L 50,195" />
+    <!-- Rand des Korbs -->
+    <path android:fillColor="#8D6E63"
+        android:pathData="M 3,140 L 58,138 L 58,146 L 3,148 Z" />
+    <!-- Henkel -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#795548" android:strokeWidth="3.5"
+        android:pathData="M 10,140 C 10,122 50,122 50,140" />
+    <!-- Wäsche drin (ragt oben raus) -->
+    <path android:fillColor="#EF5350"
+        android:pathData="M 8,128 C 8,118 22,116 28,124 C 18,124 12,128 8,128 Z" />
+    <path android:fillColor="#42A5F5"
+        android:pathData="M 28,125 C 28,115 42,113 46,121 C 36,121 30,125 28,125 Z" />
+
+    <!-- ── Sprühflasche (rechts oben, schräg) ── -->
+    <!-- Flasche -->
+    <path android:fillColor="#4CAF50"
+        android:pathData="M 155,45 L 180,45 L 180,115 L 155,115 Z" />
+    <!-- Flüssigkeits-Level -->
+    <path android:fillColor="#81C784"
+        android:pathData="M 155,70 L 180,70 L 180,115 L 155,115 Z" />
+    <!-- Sprühkopf -->
+    <path android:fillColor="#2E7D32"
+        android:pathData="M 155,38 L 192,38 L 192,50 L 155,50 Z" />
+    <!-- Düse -->
+    <path android:fillColor="#1B5E20"
+        android:pathData="M 188,30 L 196,30 L 196,42 L 188,42 Z" />
+    <!-- Griff -->
+    <path android:fillColor="#2E7D32"
+        android:pathData="M 178,50 C 194,50 194,72 178,72 L 178,66 C 188,66 188,56 178,56 Z" />
+    <!-- Sprüh-Tröpfchen -->
+    <path android:fillColor="#A5D6A7"
+        android:pathData="M 194,24 C 194,20 200,20 200,24 C 200,28 194,28 194,24 Z" />
+    <path android:fillColor="#A5D6A7"
+        android:pathData="M 184,18 C 184,14 190,14 190,18 C 190,22 184,22 184,18 Z" />
+    <path android:fillColor="#A5D6A7"
+        android:pathData="M 197,12 C 197,8 200,8 200,12 C 200,16 197,16 197,12 Z" />
+
+    <!-- ── Ohren ── -->
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 45,62 C 36,30 54,12 72,40 Z" />
+    <path android:fillColor="#F8BBD0"
+        android:pathData="M 48,58 C 41,32 56,18 68,40 Z" />
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 155,62 C 164,30 146,12 128,40 Z" />
+    <path android:fillColor="#F8BBD0"
+        android:pathData="M 152,58 C 159,32 144,18 132,40 Z" />
+
+    <!-- ── Kopf ── -->
+    <path android:fillColor="#B0BEC5"
+        android:pathData="M 100,22 C 145,22 178,55 178,100 C 178,145 145,178 100,178 C 55,178 22,145 22,100 C 22,55 55,22 100,22 Z" />
+
+    <!-- ── Bauch/Schnauze ── -->
+    <path android:fillColor="#ECEFF1"
+        android:pathData="M 68,110 C 68,150 132,150 132,110 C 132,88 68,88 68,110 Z" />
+
+    <!-- ── Augenmaske ── -->
+    <path android:fillColor="#37474F"
+        android:pathData="M 24,82 C 36,64 72,60 100,64 C 128,60 164,64 176,82 C 170,108 148,114 100,114 C 52,114 30,108 24,82 Z" />
+
+    <!-- ── Linkes Auge – munter und offen ── -->
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 58,92 C 58,76 88,76 88,92 C 88,108 58,108 58,92 Z" />
+    <path android:fillColor="#1A1A2E"
+        android:pathData="M 64,92 C 64,80 82,80 82,92 C 82,104 64,104 64,92 Z" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M 64,83 C 64,80 69,80 69,83 C 69,86 64,86 64,83 Z" />
+
+    <!-- ── Rechtes Auge – munter ── -->
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 112,92 C 112,76 142,76 142,92 C 142,108 112,108 112,92 Z" />
+    <path android:fillColor="#1A1A2E"
+        android:pathData="M 118,92 C 118,80 136,80 136,92 C 136,104 118,104 118,92 Z" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M 118,83 C 118,80 123,80 123,83 C 123,86 118,86 118,83 Z" />
+
+    <!-- ── Nase ── -->
+    <path android:fillColor="#263238"
+        android:pathData="M 92,113 C 96,108 104,108 108,113 C 108,120 92,120 92,113 Z" />
+
+    <!-- ── Freudiges Lächeln ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#37474F" android:strokeWidth="2.5"
+        android:pathData="M 86,125 Q 100,138 114,125" />
+
+    <!-- ── Barthaare ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 68,119 L 34,113" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 68,124 L 34,127" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 132,119 L 166,113" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 132,124 L 166,127" />
+
+</vector>

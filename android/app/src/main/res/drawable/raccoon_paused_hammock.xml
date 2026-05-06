@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Waschbär – Döst in der Hängematte
+    Zustand: Haushaltspause, Variante 2
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- ── Bäume (Hängematte ist dazwischen gespannt) ── -->
+    <!-- Stamm links -->
+    <path android:fillColor="#6D4C41"
+        android:pathData="M 5,80 L 22,80 L 22,200 L 5,200 Z" />
+    <!-- Krone links -->
+    <path android:fillColor="#388E3C"
+        android:pathData="M -5,40 C -5,10 35,5 35,35 C 45,15 55,25 45,45 C 60,30 65,50 50,58 L 8,58 C -5,50 -5,40 -5,40 Z" />
+    <!-- Stamm rechts -->
+    <path android:fillColor="#6D4C41"
+        android:pathData="M 178,80 L 195,80 L 195,200 L 178,200 Z" />
+    <!-- Krone rechts -->
+    <path android:fillColor="#388E3C"
+        android:pathData="M 205,40 C 205,10 165,5 165,35 C 155,15 145,25 155,45 C 140,30 135,50 150,58 L 192,58 C 205,50 205,40 205,40 Z" />
+
+    <!-- ── Hängematte ── -->
+    <!-- Seile -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="2"
+        android:pathData="M 13,80 L 55,120" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#8D6E63" android:strokeWidth="2"
+        android:pathData="M 187,80 L 145,120" />
+    <!-- Hängemattentuch -->
+    <path android:fillColor="#FF8A65"
+        android:pathData="M 55,120 C 60,148 140,148 145,120 C 145,112 55,112 55,120 Z" />
+    <!-- Streifen -->
+    <path android:fillColor="#FF7043"
+        android:pathData="M 56,118 C 56,114 144,114 144,118 L 145,120 C 145,120 55,120 55,120 Z" />
+    <path android:fillColor="#FF7043"
+        android:pathData="M 57,128 C 60,136 140,136 143,128 L 143,133 C 140,141 60,141 57,133 Z" />
+
+    <!-- ── Ohren ── -->
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 62,75 C 55,52 68,40 80,58 Z" />
+    <path android:fillColor="#F8BBD0"
+        android:pathData="M 64,72 C 59,54 69,44 78,58 Z" />
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 138,75 C 145,52 132,40 120,58 Z" />
+    <path android:fillColor="#F8BBD0"
+        android:pathData="M 136,72 C 141,54 131,44 122,58 Z" />
+
+    <!-- ── Kopf (leicht geneigt, liegt in Hängematte) ── -->
+    <path android:fillColor="#B0BEC5"
+        android:pathData="M 100,42 C 132,42 158,65 158,96 C 158,127 132,150 100,150 C 68,150 42,127 42,96 C 42,65 68,42 100,42 Z" />
+
+    <!-- ── Bauch/Schnauze ── -->
+    <path android:fillColor="#ECEFF1"
+        android:pathData="M 72,108 C 72,138 128,138 128,108 C 128,90 72,90 72,108 Z" />
+
+    <!-- ── Augenmaske ── -->
+    <path android:fillColor="#37474F"
+        android:pathData="M 44,88 C 54,72 76,68 100,71 C 124,68 146,72 156,88 C 151,110 132,116 100,116 C 68,116 49,110 44,88 Z" />
+
+    <!-- ── Linkes Auge – geschlossen (Schlummern) ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#ECEFF1" android:strokeWidth="3"
+        android:pathData="M 62,90 Q 74,100 86,90" />
+
+    <!-- ── Rechtes Auge – geschlossen ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#ECEFF1" android:strokeWidth="3"
+        android:pathData="M 114,90 Q 126,100 138,90" />
+
+    <!-- ── Nase ── -->
+    <path android:fillColor="#263238"
+        android:pathData="M 93,113 C 97,108 103,108 107,113 C 107,120 93,120 93,113 Z" />
+
+    <!-- ── Zufriedenes Lächeln ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#37474F" android:strokeWidth="2.5"
+        android:pathData="M 86,124 Q 100,134 114,124" />
+
+    <!-- ── Barthaare ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 72,118 L 44,113" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 72,122 L 44,125" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 128,118 L 156,113" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 128,122 L 156,125" />
+
+    <!-- ── ZZZ (über dem Kopf) ── -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#78909C" android:strokeWidth="2.5"
+        android:pathData="M 148,45 L 165,45 L 148,60 L 165,60" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#78909C" android:strokeWidth="2"
+        android:pathData="M 155,30 L 169,30 L 155,43 L 169,43" />
+
+</vector>
