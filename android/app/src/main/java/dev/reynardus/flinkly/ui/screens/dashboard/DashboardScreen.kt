@@ -52,6 +52,7 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
     val user by vm.user.collectAsState()
     val recentCompletions by vm.recentCompletions.collectAsState()
     val isLoading by vm.isLoading.collectAsState()
+    val raccoonMood by vm.raccoonMood.collectAsState()
 
     Scaffold(
         topBar = {
@@ -234,6 +235,11 @@ fun DashboardScreen(vm: DashboardViewModel = hiltViewModel()) {
                             }
                         }
                     }
+                }
+
+                // Waschbär-Karte
+                item {
+                    RaccoonCard(mood = raccoonMood)
                 }
             }
         }

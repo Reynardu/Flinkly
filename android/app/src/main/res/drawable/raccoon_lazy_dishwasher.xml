@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Waschbär – Schaut aus der Spülmaschine heraus
+    Zustand: Gestern keine Aufgaben erledigt, Variante 2
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- ── Spülmaschine (Tür, geöffnet) ── -->
+    <!-- Geräte-Gehäuse Hintergrund -->
+    <path android:fillColor="#ECEFF1"
+        android:pathData="M 5,100 L 195,100 L 195,195 L 5,195 Z" />
+    <!-- Tür-Rahmen -->
+    <path android:fillColor="#B0BEC5"
+        android:pathData="M 5,100 L 195,100 L 195,108 L 5,108 Z" />
+    <!-- Scharnier links -->
+    <path android:fillColor="#78909C"
+        android:pathData="M 15,98 L 25,98 L 25,110 L 15,110 Z" />
+    <!-- Scharnier rechts -->
+    <path android:fillColor="#78909C"
+        android:pathData="M 175,98 L 185,98 L 185,110 L 175,110 Z" />
+    <!-- Griff an der Tür -->
+    <path android:fillColor="#78909C"
+        android:pathData="M 75,100 L 125,100 L 125,106 L 75,106 Z" />
+    <!-- Kontrollleuchte grün -->
+    <path android:fillColor="#4CAF50"
+        android:pathData="M 170,92 C 170,88 176,88 176,92 C 176,96 170,96 170,92 Z" />
+    <!-- Besteckkorb (angedeutet) -->
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 130,120 L 180,120 L 180,190 L 130,190 Z" />
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 133,123 L 177,123 L 177,128 L 133,128 Z" />
+    <!-- Gabel im Korb -->
+    <path android:fillColor="#78909C"
+        android:pathData="M 143,125 L 143,185" />
+    <path android:fillColor="#78909C"
+        android:pathData="M 150,125 L 150,185" />
+    <path android:fillColor="#78909C"
+        android:pathData="M 157,125 L 157,185" />
+    <path android:fillColor="#78909C"
+        android:pathData="M 164,125 L 164,185" />
+    <!-- Teller (angedeutet) -->
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 20,140 C 20,118 60,118 60,140 C 60,162 20,162 20,140 Z" />
+    <path android:fillColor="#ECEFF1"
+        android:pathData="M 27,140 C 27,124 53,124 53,140 C 53,156 27,156 27,140 Z" />
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 70,140 C 70,118 110,118 110,140 C 110,162 70,162 70,140 Z" />
+    <path android:fillColor="#ECEFF1"
+        android:pathData="M 77,140 C 77,124 103,124 103,140 C 103,156 77,156 77,140 Z" />
+
+    <!-- ── Waschbär – nur Kopf schaut über die Tür ── -->
+
+    <!-- Ohren -->
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 55,65 C 48,40 62,26 76,48 Z" />
+    <path android:fillColor="#F8BBD0"
+        android:pathData="M 57,62 C 52,42 63,31 73,48 Z" />
+    <path android:fillColor="#90A4AE"
+        android:pathData="M 145,65 C 152,40 138,26 124,48 Z" />
+    <path android:fillColor="#F8BBD0"
+        android:pathData="M 143,62 C 148,42 137,31 127,48 Z" />
+
+    <!-- Kopf (nur obere Hälfte sichtbar) -->
+    <path android:fillColor="#B0BEC5"
+        android:pathData="M 100,35 C 138,35 165,60 165,95 L 35,95 C 35,60 62,35 100,35 Z" />
+
+    <!-- Augenmaske -->
+    <path android:fillColor="#37474F"
+        android:pathData="M 35,72 C 46,57 72,54 100,57 C 128,54 154,57 165,72 C 160,92 142,97 100,97 C 58,97 40,92 35,72 Z" />
+
+    <!-- Linkes Auge – weit aufgerissen (überrascht) -->
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 57,77 C 57,63 82,63 82,77 C 82,91 57,91 57,77 Z" />
+    <path android:fillColor="#1A1A2E"
+        android:pathData="M 63,77 C 63,67 76,67 76,77 C 76,87 63,87 63,77 Z" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M 63,71 C 63,68 68,68 68,71 C 68,74 63,74 63,71 Z" />
+
+    <!-- Rechtes Auge – weit aufgerissen -->
+    <path android:fillColor="#FAFAFA"
+        android:pathData="M 118,77 C 118,63 143,63 143,77 C 143,91 118,91 118,77 Z" />
+    <path android:fillColor="#1A1A2E"
+        android:pathData="M 124,77 C 124,67 137,67 137,77 C 137,87 124,87 124,77 Z" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M 124,71 C 124,68 129,68 129,71 C 129,74 124,74 124,71 Z" />
+
+    <!-- Nase -->
+    <path android:fillColor="#263238"
+        android:pathData="M 93,99 C 97,95 103,95 107,99 C 107,104 93,104 93,99 Z" />
+
+    <!-- Barthaare (nur kurz sichtbar) -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 67,102 L 38,97" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#607D8B" android:strokeWidth="1.5"
+        android:pathData="M 133,102 L 162,97" />
+
+</vector>

@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalTime
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,6 +38,9 @@ class DashboardViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _raccoonMood = MutableStateFlow<RaccoonMood>(RaccoonMood.ReadyChecklist)
+    val raccoonMood: StateFlow<RaccoonMood> = _raccoonMood
 
     init { load() }
 
@@ -64,6 +70,51 @@ class DashboardViewModel @Inject constructor(
             runCatching { api.getRecentCompletions(householdId, limit = 10).body() }.getOrNull()
                 ?.let { _recentCompletions.value = it }
             _isLoading.value = false
+            _raccoonMood.value = determineMood(_progress.value, _recentCompletions.value)
         }
     }
+}
+
+// Variant-Auswahl: wechselt stündlich, bleibt innerhalb der Stunde stabil.
+private val variantA: Boolean
+    get() = (System.currentTimeMillis() / 3_600_000L) % 2L == 0L
+
+internal fun determineMood(
+    progress: DailyProgressDto?,
+    recentCompletions: List<RecentCompletionDto>,
+): RaccoonMood {
+    val hour = LocalTime.now().hour
+
+    // 1. Haushaltspause
+    if (progress?.isPaused == true) {
+        return if (variantA) RaccoonMood.PausedSunglasses else RaccoonMood.PausedHammock
+    }
+
+    // 2. Tagesziel bereits erreicht
+    if (progress?.goalReached == true) {
+        return if (variantA) RaccoonMood.DoneBroom else RaccoonMood.DoneCelebrating
+    }
+
+    // 3. Morgens (vor 10 Uhr)
+    if (hour < 10) {
+        return if (variantA) RaccoonMood.MorningSleepy else RaccoonMood.MorningYawning
+    }
+
+    // 4. Gestern keine Aufgaben: Streak = 0 und kein Eintrag in den letzten 24 h
+    val cutoff = Instant.now().minusSeconds(86_400)
+    val hadRecentCompletion = recentCompletions.any { c ->
+        runCatching { OffsetDateTime.parse(c.completedAt).toInstant().isAfter(cutoff) }
+            .getOrDefault(false)
+    }
+    if ((progress?.streak ?: 1) == 0 && !hadRecentCompletion) {
+        return if (variantA) RaccoonMood.LazyLaundry else RaccoonMood.LazyDishwasher
+    }
+
+    // 5. Guter Fortschritt (≥ 50 % des Tagesziels)
+    if ((progress?.percent ?: 0) >= 50) {
+        return if (variantA) RaccoonMood.ProgressMotivated else RaccoonMood.ProgressCleaning
+    }
+
+    // 6. Standard: bereit für den Tag
+    return if (variantA) RaccoonMood.ReadyChecklist else RaccoonMood.ReadySupplies
 }
