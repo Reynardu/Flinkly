@@ -111,7 +111,8 @@ class FlinklyWidget : GlanceAppWidget() {
 
                 if (titles.isNotEmpty()) {
                     Spacer(GlanceModifier.height(6.dp))
-                    titles.take(4).forEach { title ->
+                    val maxVisible = 5
+                    titles.take(maxVisible).forEach { title ->
                         Text(
                             text = "• $title",
                             style = TextStyle(
@@ -119,6 +120,15 @@ class FlinklyWidget : GlanceAppWidget() {
                                 fontSize = 12.sp,
                             ),
                             maxLines = 1,
+                        )
+                    }
+                    if (openCount > maxVisible) {
+                        Text(
+                            text = "… und ${openCount - maxVisible} weitere",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.secondary,
+                                fontSize = 11.sp,
+                            ),
                         )
                     }
                 }
@@ -132,7 +142,7 @@ object WidgetUpdater {
         CoroutineScope(Dispatchers.IO).launch {
             applyState(context) { p ->
                 p[KEY_OPEN_COUNT] = openCount
-                p[KEY_TITLES] = titles.take(4).joinToString("|")
+                p[KEY_TITLES] = titles.take(5).joinToString("|")
             }
         }
     }
